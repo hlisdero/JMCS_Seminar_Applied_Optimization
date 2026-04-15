@@ -1,0 +1,174 @@
+\documentclass{beamer}
+\usetheme{UniBern}
+
+% SET THE LANGUAGE TO ENGLISH %
+\usepackage[english]{babel}
+
+% GRAPHICS CONFIGURATION %
+\usepackage{graphicx}
+\graphicspath{{images/}}
+
+% HYPERLINK CONFIGURATION %
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  filecolor=blue,
+  citecolor=blue,
+  urlcolor=blue,
+}
+
+% CODE LISTINGS WITH SYNTAX HIGHLIGHTING %
+% See example: https://www.overleaf.com/learn/latex/Code_Highlighting_with_minted
+% Restart the counter on every chapter
+\usepackage[chapter,newfloat]{minted}
+\setminted{
+  linenos, % Show line numbers
+  numbers=left, % Show the line numbers on the left
+  xleftmargin=0.5cm, % Add marging so that the line numbers show up
+  breaklines, % Wrap lines if necessary
+  autogobble, % Remove whitespace in front of the code
+  frame=lines, % Use lines to create a frame
+  framesep=2mm, % Separation of the frame from the actual code
+  fontsize=\scriptsize % Use a tiny font size
+}
+% Define a new environment for inline Rust code
+\newmintinline{Rust}{
+  fontsize=\small
+}
+
+\title[IPOPT revisited: Strategies to solve edge cases]{IPOPT revisited: Strategies to solve edge cases}
+\author{Horacio Lisdero Scaffino}
+\date{April 30, 2026}
+
+\AtBeginSection[]
+{
+  \begin{frame}{Agenda}
+  \tableofcontents[currentsection, currentsubsection]
+  \end{frame}
+}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{Agenda}
+  \tableofcontents
+\end{frame}
+
+\section{Introduction to IPOPT}
+
+\begin{frame}{IPOPT: Interior Point OPTimizer}
+
+  \begin{itemize}
+    \item Paper by Wächter and Biegler in 2005 \cite{wachter2006implementation}.
+    \item Implementation originally in Fortran (version 1.x and 2.x), now deprecated
+    \item Version 3.x in C++ published in 2006
+    \item Since xxxx part of the COIN-OP foundation \cite{coinop_ipopt}.
+    \item It is still developed.
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}{IPOPT: Interior Point OPTimizer}
+
+
+  One of the most popular open-source optimization packages.
+
+  \vfill
+
+  Bindings available in multiple programming languages:
+
+  \begin{itemize}
+    \item Python
+    \item Rust
+    \item Fortran?
+  \end{itemize}
+
+  \vfill
+
+  Inspired other packages and subsequent research
+
+\end{frame}
+
+\begin{frame}{ripopt: A Rust re-write from February 2026}
+
+Coded in ~60/70 hs during the course of 6 weeks heavily relying on Claude Code \cite{kitchin_ripopt}.
+
+\vfill
+
+According to the benchmarks CUTEst and xxxx, it already beats IPOPT.
+
+\vfill
+
+Interesting insights into licensing issues and thought process documented in the repo.
+
+\end{frame}
+
+\section{Techniques applied}
+
+\begin{frame}{Summary}
+
+  \begin{itemize}
+    \item Interior Point method
+    \item Inertia correction
+    \item Recovery phase
+    \item Fallback: SQP
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Interior Point Methods}
+
+\end{frame}
+
+\section{Conclusion}
+
+\begin{frame}{Conclusion}
+
+IPOPT's performance can still be improved.
+
+\vfill
+
+Different methods complement each other: By combining them, edge cases can be solved more efficiently.
+
+\vfill
+
+Implementation of a state-of-the-art optimization package may be in the reach of modern AI agentic coding tools.
+
+\end{frame}
+
+\begin{frame}{Questions?}
+
+  \textbf{Links}
+
+  \scriptsize
+
+  \vfill
+  \textbf{Presentation}: \url{https://github.com/hlisdero/JMCS_Seminar_Applied_Optimization}
+
+  \vfill
+  \textbf{Modified argmin}: \url{https://github.com/hlisdero/argmin}
+
+  \vfill
+  \textbf{ripopt}: \url{https://github.com/jkitchin/ripopt}
+
+  \vfill
+  \textbf{ipopt-rs}: \url{https://github.com/elrnv/ipopt-rs}
+\end{frame}
+
+\section*{Bibliography}
+
+\begin{frame}{Bibliography}
+  \tiny
+  \bibliographystyle{ieeetr}
+  \bibliography{
+    ../Bibliography/Articles.bib,
+    ../Bibliography/Books.bib,
+    ../Bibliography/Repositories.bib,
+  }
+\end{frame}
+
+\end{document}
