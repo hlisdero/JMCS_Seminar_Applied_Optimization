@@ -1,0 +1,8 @@
+[package]
+name = "iopt-rs-test"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+approx = "0.5.1"
+ipopt = "0.6.0"
