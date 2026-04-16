@@ -1,5 +1,5 @@
 use approx::assert_relative_eq;
-use ipopt::{BasicProblem, Ipopt, Number, SolveStatus};
+use ipopt::{BasicProblem, Index, Ipopt, NewtonProblem, Number, SolveStatus};
 
 // Minimize the classical Rosenbrock function:
 //
@@ -54,6 +54,46 @@ impl BasicProblem for Nlp {
 
         grad_f[0] = 2.0 * (x0 - 1.0) - 400.0 * x0 * t;
         grad_f[1] = 200.0 * t;
+        true
+    }
+}
+
+impl NewtonProblem for Nlp {
+    // Lower-triangular Hessian entries:
+    // (0,0), (0,1), (1,0), (1,1)
+    fn num_hessian_non_zeros(&self) -> usize {
+        4
+    }
+
+    fn hessian_indices(&self, rows: &mut [Index], cols: &mut [Index]) -> bool {
+        rows[0] = 0;
+        cols[0] = 0;
+
+        rows[1] = 0;
+        cols[1] = 1;
+
+        rows[2] = 1;
+        cols[2] = 0;    
+
+        rows[3] = 1;
+        cols[3] = 1;
+        true
+    }
+
+    /// Hessian of:
+    /// f(x, y) = (1 - x)^2 + 100 (y - x^2)^2
+    ///
+    /// d²f/dx²  = 2 - 400y + 1200x²
+    /// d²f/dydx = -400x
+    /// d²f/dy²  = 200
+    fn hessian_values(&self, x: &[Number], vals: &mut [Number]) -> bool {
+        let x0 = x[0];
+        let x1 = x[1];
+
+        vals[0] = 2.0 - 400.0 * x1 + 1200.0 * x0 * x0;  // (0,0)
+        vals[1] = -400.0 * x0;                          // (0,1)
+        vals[2] = -400.0 * x0;                          // (1,0)
+        vals[3] = 200.0;                                  // (1,1)
 
         true
     }
@@ -73,7 +113,7 @@ fn main() {
 
     let solution = solve_result.solver_data.solution;
 
-    assert_relative_eq!(solution.primal_variables[0], 1.0, epsilon = 1e-5);
-    assert_relative_eq!(solution.primal_variables[1], 1.0, epsilon = 1e-5);
+    assert_relative_eq!(solution.primal_variables[0], 1.0, epsilon = 1e-6);
+    assert_relative_eq!(solution.primal_variables[1], 1.0, epsilon = 1e-6);
     assert_relative_eq!(solve_result.objective_value, 0.0, epsilon = 1e-8);
 }
