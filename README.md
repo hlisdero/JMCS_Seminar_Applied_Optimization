@@ -8,6 +8,7 @@ Presentation for the Seminar Applied Optimization for the Swiss Joint Master Pro
 - [Presentation](./Presentation/Presentation.pdf): The slides used for the presentation in LaTeX.
   - bibliography: BibTex entries
   - images: Images used in the presentation
+- [ripopt](./ripopt/README.md): Demo with [ripopt](https://crates.io/crates/ripopt) crate.
 
 ## Uni Bern template
 
