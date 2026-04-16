@@ -27,3 +27,9 @@ sudo dnf install \
 ```bash
 cargo clean && cargo build
 ```
+
+## Run
+
+```bash
+cargo run --bin <binary>
+```
