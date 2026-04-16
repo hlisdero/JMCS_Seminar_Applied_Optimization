@@ -4,10 +4,10 @@ Presentation for the Seminar Applied Optimization for the Swiss Joint Master Pro
 
 ## Structure
 
-- Bibliography: BibTex entries
-- images: Images used in the presentation
 - [iopt-rs](./ipopt/README.md): Demo with [ipopt](https://crates.io/crates/ipopt) crate to run IPOPT from Rust.
 - [Presentation](./Presentation/Presentation.pdf): The slides used for the presentation in LaTeX.
+  - bibliography: BibTex entries
+  - images: Images used in the presentation
 
 ## Uni Bern template
 
