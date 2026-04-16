@@ -283,20 +283,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0cc23270f6e1808e30a928bdc84dea0b9b4136a8bc82338574f23baf47bbd280"
 
 [[package]]
-name = "iopt-rs-demo"
-version = "0.1.0"
-dependencies = [
- "approx",
- "ipopt",
-]
-
-[[package]]
 name = "ipopt"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "be20d998cc3b34b62980e0b0971f53a0d239efa91c798a6c1d9236c692b1f41f"
 dependencies = [
  "ipopt-sys",
+]
+
+[[package]]
+name = "ipopt-rs-demo"
+version = "0.1.0"
+dependencies = [
+ "approx",
+ "ipopt",
 ]
 
 [[package]]
