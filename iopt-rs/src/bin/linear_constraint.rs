@@ -21,9 +21,9 @@ use ipopt::{BasicProblem, ConstrainedProblem, Number, Ipopt, SolveStatus, Index}
 // Objective value there:
 //     f(4, -1) = -(4^2) + (-1)^2 = -16 + 1 = -15
 
-struct NLP {}
+struct Nlp {}
 
-impl BasicProblem for NLP {
+impl BasicProblem for Nlp {
     // Two decision variables: x and y.
     fn num_variables(&self) -> usize {
         2
@@ -69,7 +69,7 @@ impl BasicProblem for NLP {
     }
 }
 
-impl ConstrainedProblem for NLP {
+impl ConstrainedProblem for Nlp {
     // One scalar constraint:
     //   g(x, y) = y
     // with upper bound -1, i.e. y <= -1.
@@ -170,7 +170,7 @@ impl ConstrainedProblem for NLP {
 }
 
 fn main() {
-    let nlp = NLP {};
+    let nlp = Nlp {};
     let mut ipopt = Ipopt::new(nlp).unwrap();
 
     ipopt.set_option("tol", 1e-9);

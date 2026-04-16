@@ -1,10 +1,10 @@
 use approx::assert_relative_eq;
 use ipopt::{BasicProblem, Number, Ipopt, SolveStatus};
 
-struct NLP {
+struct Nlp {
 }
 
-impl BasicProblem for NLP {
+impl BasicProblem for Nlp {
     // There are two independent variables: x and y.
     fn num_variables(&self) -> usize {
         2
@@ -39,7 +39,7 @@ impl BasicProblem for NLP {
 }
 
 fn main() {
-    let nlp = NLP { };
+    let nlp = Nlp { };
     let mut ipopt = Ipopt::new_unconstrained(nlp).unwrap();
 
     // Set Ipopt specific options here a list of all options is available at
