@@ -37,14 +37,14 @@
   fontsize=\small
 }
 
-\title[IPOPT revisited: Strategies to solve edge cases]{IPOPT revisited: Strategies to solve edge cases}
+\title[Ipopt revisited: Strategies to solve edge cases]{Ipopt revisited: Strategies to solve edge cases}
 \author{Horacio Lisdero Scaffino}
 \date{April 30, 2026}
 
 \AtBeginSection[]
 {
   \begin{frame}{Agenda}
-  \tableofcontents[currentsection, currentsubsection]
+  \tableofcontents[currentsection]
   \end{frame}
 }
 
@@ -58,64 +58,82 @@
   \tableofcontents
 \end{frame}
 
-\section{Introduction to IPOPT}
+\section{A tour of Ipopt}
 
-\begin{frame}{IPOPT: Interior Point OPTimizer}
+\begin{frame}{Ipopt: Interior Point OPTimizer}
 
-  \begin{itemize}
-    \item Paper by Wächter and Biegler in 2005 \cite{wachter2006implementation}.
-    \item Implementation originally in Fortran (version 1.x and 2.x), now deprecated
-    \item Version 3.x in C++ published in 2006
-    \item Since xxxx part of the COIN-OP foundation \cite{coinop_ipopt}.
-    \item It is still developed.
-  \end{itemize}
-
-\end{frame}
-
-\begin{frame}{IPOPT: Interior Point OPTimizer}
-
-
-  One of the most popular open-source optimization packages.
+  Popular open-source non-linear optimization package
 
   \vfill
 
-  Bindings available in multiple programming languages:
+  Bindings available for:
 
   \begin{itemize}
-    \item Python
+    \item AMPL (algebraic modeling language)
+    \item Fortran
+    \item GAMS (general algebraic modeling system)
+    \item Julia
+    \item Matlab / Scilab
+    \item .NET languages: C\#, F\# and Visual Basic.NET
+    \item Python (several wrappers available)
+    \item R
     \item Rust
-    \item Fortran?
   \end{itemize}
 
-  \vfill
+\end{frame}
 
-  Inspired other packages and subsequent research
+\subsection{History}
+
+\begin{frame}{Ipopt: The origins}
+
+  \begin{itemize}
+    \item PhD thesis by Andreas Wächter in 2002 at Carnegie Mellon \cite{wachter2002interior}
+    \item Since 2002 part of the COIN-OP foundation \cite{coinop_ipopt}
+    \item Original implementation in Fortran 77 (1.x and 2.x), now deprecated
+    \item Open source since the start
+    \item Benchmarked against KNITRO (1999) and LOQO (1999) \cite{byrd1999interior, vanderbei1999loqo}
+  \end{itemize}
 
 \end{frame}
 
-\begin{frame}{ripopt: A Rust re-write from February 2026}
+\begin{frame}{Ipopt: Subsequent paper}
 
-Coded in ~60/70 hs during the course of 6 weeks heavily relying on Claude Code \cite{kitchin_ripopt}.
-
-\vfill
-
-According to the benchmarks CUTEst and xxxx, it already beats IPOPT.
-
-\vfill
-
-Interesting insights into licensing issues and thought process documented in the repo.
+  \begin{itemize}
+    \item Paper by Wächter and Biegler in 2006 \cite{wachter2006implementation}
+    \item More focused on the central algorithm of Ipopt
+    \item Features described more in detail
+          \begin{itemize}
+            \item Feasibility restoration phase,
+            \item Inertia correction,
+            \item Heuristics...
+          \end{itemize}
+    \item More benchmarks: CUTEr test set \cite{gould2003cuter}
+  \end{itemize}
 
 \end{frame}
 
-\section{Techniques applied}
+\begin{frame}{Ipopt: C++ version}
+
+  \begin{itemize}
+    \item IBM Research decided to invest in an open source re-write of Ipopt in C++
+    \item With the help of Carl Laird, the code was re-implemented from scratch \cite{IpoptDocs}
+    \item 3.x published in Aug 2005
+    \item It is still actively developed on GitHub
+  \end{itemize}
+
+\end{frame}
+
+\subsection{Techniques applied}
 
 \begin{frame}{Summary}
 
   \begin{itemize}
-    \item Interior Point method
-    \item Inertia correction
-    \item Recovery phase
-    \item Fallback: SQP
+    \item Primal-dual interior-point method with filter line-search globalization
+    \item Sparse symmetric KKT solves with inertia monitoring/correction
+    \item Inertia correction and regularization to obtain the proper search direction
+    \item Feasibility restoration phase for difficult or infeasible iterates
+    \item Second-order correction steps to reduce Maratos-type effects
+    \item Practical heuristics for robustness and faster performance
   \end{itemize}
 
 \end{frame}
@@ -124,19 +142,146 @@ Interesting insights into licensing issues and thought process documented in the
 
 \end{frame}
 
+\section{An attempt of a simple IPM algorithm}
+
+\begin{frame}{Introduction}
+
+  I wanted to play around with code and not just present equations
+
+  \begin{flushright}
+    \scriptsize and thus produce some nice visualizations :)
+  \end{flushright}
+
+  \vfill
+  \pause
+
+  I wanted to see if optimization in pure Rust is possible
+
+  \begin{flushright}
+    \scriptsize memory safety, performance, modern language for low-level applications, ...
+  \end{flushright}
+
+  \vfill
+  \pause
+
+  I wanted to contribute something back to the community,
+
+  \begin{flushright}
+    \scriptsize i.e, \textbf{not} throw away the Python code 1 week after the seminar
+  \end{flushright}
+
+  \vfill
+
+\end{frame}
+
+\begin{frame}{The original plan}
+
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \begin{enumerate}
+        \item Select the most popular optimization package
+        \item Implement a simple interior-point method
+        \item Compare it with Ipopt
+        \item Profit!
+      \end{enumerate}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{obama-medal.jpg}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}{argmin}
+
+
+  \centering
+  \includegraphics[width=\textwidth]{argmin-crate.png}
+
+  \vfill
+
+  \tiny Website \cite{argmin-rs}
+  \centering
+  \includegraphics[width=\textwidth]{argmin-features.png}
+
+  \vfill
+
+  \tiny discarded several libraries: dealt only with LP (\texttt{good\_lp}), used novel algorithms (\texttt{clarabel}), or were too small (\texttt{interiors})
+
+\end{frame}
+
+\begin{frame}[fragile]{argmin: Code example}
+
+  \begin{listing}
+    \begin{minted}[fontsize=\tiny, frame=none]{Rust}
+        impl<O, P, G, H, F> Solver<O, IterState<P, G, (), H, (), F>> for Newton<F>
+        where
+            O: Gradient<Param = P, Gradient = G> + Hessian<Param = P, Hessian = H>,
+            P: Clone + ArgminScaledSub<P, F, P>,
+            H: ArgminInv<H> + ArgminDot<G, P>,
+            F: ArgminFloat,
+        {
+            fn next_iter(
+                &mut self,
+                problem: &mut Problem<O>,
+                mut state: IterState<P, G, (), H, (), F>,
+            ) -> Result<(IterState<P, G, (), H, (), F>, Option<KV>), Error> {
+                let param = state.take_param().ok_or_else(argmin_error_closure!(
+                    NotInitialized,
+                    concat!(
+                        "`Newton` requires an initial parameter vector. ",
+                        "Please provide an initial guess via `Executor`s `configure` method."
+                    )
+                ))?;
+                let grad = problem.gradient(&param)?;
+                let hessian = problem.hessian(&param)?;
+                let new_param = param.scaled_sub(&self.gamma, &hessian.inv()?.dot(&grad));
+                Ok((state.param(new_param), None))
+            }
+        }
+    \end{minted}
+  \end{listing}
+
+\end{frame}
+
+\subsection{Challenges encountered}
+
+\section{A tour of ripopt}
+
+\begin{frame}{ripopt: A Rust re-write from February 2026}
+
+  Coded in ~60/70 hs during the course of 6 weeks heavily relying on Claude Code \cite{kitchin_ripopt}.
+
+  \vfill
+
+  According to the benchmarks CUTEst and xxxx, it already beats Ipopt.
+
+  \vfill
+
+  Interesting insights into licensing issues and thought process documented in the repo.
+
+\end{frame}
+
+\section{Experiments}
+
+\subsection{What can we learn}
+
+
 \section{Conclusion}
 
 \begin{frame}{Conclusion}
 
-IPOPT's performance can still be improved.
+  Ipopt's performance can still be improved.
 
-\vfill
+  \vfill
 
-Different methods complement each other: By combining them, edge cases can be solved more efficiently.
+  Different methods complement each other: By combining them, edge cases can be solved more efficiently.
 
-\vfill
+  \vfill
 
-Implementation of a state-of-the-art optimization package may be in the reach of modern AI agentic coding tools.
+  Implementation of a state-of-the-art optimization package may be in the reach of modern AI agentic coding tools.
 
 \end{frame}
 
