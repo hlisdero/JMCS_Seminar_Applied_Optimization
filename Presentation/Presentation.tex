@@ -39,7 +39,7 @@
 
 \title[Ipopt revisited: Strategies to solve edge cases]{Ipopt revisited: Strategies to solve edge cases}
 \author{Horacio Lisdero Scaffino}
-\date{April 30, 2026}
+\date{May 21, 2026}
 
 \AtBeginSection[]
 {
@@ -246,7 +246,205 @@
 
 \end{frame}
 
+\begin{frame}{Math backends}
+
+  The math backend is implemented in a separate crate \texttt{argmin-math}
+
+  \vfill
+
+  It is trait-based: interfaces define the methods required from the linear algebra backend
+
+  \vfill
+
+  \begin{itemize}
+    \item \texttt{nalgebra} \cite{nalgebra-rs}
+    \item \texttt{faer} \cite{faer-rs}
+  \end{itemize}
+
+\end{frame}
+
 \subsection{Challenges encountered}
+
+\begin{frame}[fragile]{Add a solver}
+
+  Add a trait:
+
+  \begin{listing}
+    \begin{minted}[fontsize=\tiny, frame=none]{Rust}
+        pub trait ArgminLuSolve<T> {
+            /// Solve linear system using LU decomposition.
+            fn lu_solve(&self, rhs: &T) -> Result<T, Error>;
+        }
+    \end{minted}
+
+
+  \end{listing}
+
+  And the corresponding implementation:
+
+  \begin{listing}
+    \begin{minted}[fontsize=\tiny, frame=none]{Rust}
+        impl<N, D, C, S> ArgminLuSolve<OMatrix<N, D, C>> for SquareMatrix<N, D, S>
+        where
+            N: ComplexField,
+            D: Dim + DimMin<D, Output = D>,
+            C: Dim,
+            S: Storage<N, D, D>,
+            DefaultAllocator: Allocator<N, D, D> + Allocator<N, D, C> + Allocator<N, D>,
+        {
+            #[inline]
+            fn lu_solve(&self, rhs: &OMatrix<N, D, C>) -> Result<OMatrix<N, D, C>, Error> {
+                let lu = LU::new(self.clone_owned());
+                lu.solve(rhs).ok_or_else(|| LuSolveError {}.into())
+            }
+        }
+    \end{minted}
+  \end{listing}
+
+\end{frame}
+
+\begin{frame}[fragile]{No constraints?}
+
+  \begin{listing}
+    \begin{minted}[fontsize=\tiny, frame=none]{Rust}
+        /// Defines equality constraints for a problem.
+        ///
+        /// It follows the form h(x) = (0, ... , 0), where h is a vector field.
+        pub trait EqualityConstraint {
+            /// Type of the parameter vector
+            type Param;
+            /// Type of the return value of the equality constraints
+            type Output;
+
+            /// Compute all equality constraints
+            fn equality_constraint(&self, param: &Self::Param) -> Result<Self::Output, Error>;
+        }
+    \end{minted}
+  \end{listing}
+
+\end{frame}
+
+\begin{frame}[fragile]{And their derivatives...}
+
+  \begin{listing}
+    \begin{minted}[fontsize=\tiny, frame=none]{Rust}
+        /// Defines the Jacobian of the vector field representing the equality constraints for a problem.
+        pub trait EqualityConstraintJacobian {
+            /// Type of the parameter vector
+            type Param;
+            /// Type of the Jacobian
+            type Jacobian;
+
+            /// Compute the Jacobian of the equality constraints
+            fn equality_constraint_jacobian(&self, param: &Self::Param) -> Result<Self::Jacobian, Error>;
+
+            bulk!(equality_constraint_jacobian, Self::Param, Self::Jacobian);
+        }
+    \end{minted}
+  \end{listing}
+
+\end{frame}
+
+\begin{frame}[fragile]{And the Hessian of the Lagrangian...}
+
+  \begin{listing}
+    \begin{minted}[fontsize=\tiny, frame=none]{Rust}
+        pub trait LagrangianHessian {
+            /// Type of the parameter vector
+            type Param;
+            /// Type of the multipliers associated with equality constraints
+            type MultipliersEq;
+            /// Type of the multipliers associated with inequality constraints
+            type MultipliersIneq;
+            /// Type of the Hessian
+            type Hessian;
+
+            /// Compute the Hessian of the Lagrangian
+            fn lagrangian_hessian(
+                &self,
+                param: &Self::Param,
+                multipliers_eq: &Self::MultipliersEq,
+                multipliers_ineq: &Self::MultipliersIneq,
+            ) -> Result<Self::Hessian, Error>;
+
+            bulk!(
+                lagrangian_hessian,
+                Self::Param,
+                Self::MultipliersEq,
+                Self::MultipliersIneq,
+                Self::Hessian
+            );
+        }
+    \end{minted}
+  \end{listing}
+
+\end{frame}
+
+\begin{frame}{And iteration state for NLP...}
+
+  \scriptsize
+
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+    \begin{itemize}
+      \item \texttt{param: Option<P>}
+      \item \texttt{slacks: Option<S>}
+      \item \texttt{best\_param: Option<P>}
+      \item \texttt{best\_slacks: Option<S>}
+      \item \texttt{cost: F}
+      \item \texttt{best\_cost: F}
+      \item \texttt{target\_cost: F}
+      \item \texttt{grad: Option<G>}
+      \item \texttt{lagrangian\_hessian: Option<LH>}
+      \item \texttt{equality\_constraints: Option<EqC>}
+      \item \texttt{inequality\_constraints: Option<IneqC>}
+      \item \texttt{equality\_constraint\_jacobian: Option<EqCJ>}
+      \item \texttt{inequality\_constraint\_jacobian: Option<IneqCJ>}
+      \item \texttt{mu: Option<F>}
+    \end{itemize}
+
+    \column{0.48\textwidth}
+    \begin{itemize}
+      \item \texttt{lambda\_eq: Option<LambdaEq>}
+      \item \texttt{lambda\_ineq: Option<LambdaIneq>}
+      \item \texttt{alpha\_primal: Option<F>}
+      \item \texttt{alpha\_dual: Option<F>}
+      \item \texttt{inf\_pr: Option<F>}
+      \item \texttt{inf\_du: Option<F>}
+      \item \texttt{compl\_inf: Option<F>}
+      \item \texttt{iter: u64}
+      \item \texttt{last\_best\_iter: u64}
+      \item \texttt{max\_iters: u64}
+      \item \texttt{counts: HashMap<String, u64>}
+      \item \texttt{counting\_enabled: bool}
+      \item \texttt{time: Option<Duration>}
+      \item \texttt{termination\_status: TerminationStatus}
+    \end{itemize}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}{Finally! IPM}
+
+
+  \texttt{nalgebra\_backend.rs}: All the linear-algebra-specific logic for nalgebra, the only supported backend
+
+  \vfill
+
+  \texttt{linesearch.rs}: The custom backtracking linear search. The existing implementation could not be reused
+
+  \vfill
+
+  \texttt{iteration.rs}: A single iteration of the interior-point method
+
+  \vfill
+
+  \texttt{interiorpointmethod.rs}: The solver. The high-level management of the IPM algorithm.
+
+\end{frame}
+
+\subsection{Results}
+
 
 \section{A tour of ripopt}
 
