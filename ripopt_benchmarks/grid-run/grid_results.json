@@ -1,0 +1,82 @@
+[
+  {
+    "solver": "ripopt",
+    "name": "case3_lmbd",
+    "n": 12,
+    "m": 12,
+    "status": "Optimal",
+    "objective": 5812.6430169813075,
+    "iterations": 10,
+    "solve_time": 0.000654469
+  },
+  {
+    "solver": "ipopt",
+    "name": "case3_lmbd",
+    "n": 12,
+    "m": 12,
+    "status": "Optimal",
+    "objective": 5812.642934996067,
+    "iterations": 10,
+    "solve_time": 0.003458521
+  },
+  {
+    "solver": "ripopt",
+    "name": "case5_pjm",
+    "n": 20,
+    "m": 22,
+    "status": "Optimal",
+    "objective": 17551.890927682114,
+    "iterations": 20,
+    "solve_time": 0.00291488
+  },
+  {
+    "solver": "ipopt",
+    "name": "case5_pjm",
+    "n": 20,
+    "m": 22,
+    "status": "Optimal",
+    "objective": 17551.890899063277,
+    "iterations": 15,
+    "solve_time": 0.005321483
+  },
+  {
+    "solver": "ripopt",
+    "name": "case14_ieee",
+    "n": 38,
+    "m": 68,
+    "status": "Optimal",
+    "objective": 2178.080420803814,
+    "iterations": 14,
+    "solve_time": 0.020148612
+  },
+  {
+    "solver": "ipopt",
+    "name": "case14_ieee",
+    "n": 38,
+    "m": 68,
+    "status": "Optimal",
+    "objective": 2178.0804064118383,
+    "iterations": 11,
+    "solve_time": 0.017338788
+  },
+  {
+    "solver": "ripopt",
+    "name": "case30_ieee",
+    "n": 72,
+    "m": 142,
+    "status": "Optimal",
+    "objective": 8208.515458629612,
+    "iterations": 19,
+    "solve_time": 0.096061543
+  },
+  {
+    "solver": "ipopt",
+    "name": "case30_ieee",
+    "n": 72,
+    "m": 142,
+    "status": "Optimal",
+    "objective": 8208.515425007849,
+    "iterations": 14,
+    "solve_time": 0.128912968
+  }
+]
