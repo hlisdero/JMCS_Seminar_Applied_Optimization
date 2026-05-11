@@ -1,0 +1,26 @@
+{"solver":"ripopt","name":"Water autoionization","n":1,"m":0,"status":"Optimal","objective":3.799326928221924e-7,"iterations":7,"solve_time":0.000120882}
+{"solver":"ipopt","name":"Water autoionization","n":1,"m":0,"status":"Optimal","objective":3.1003500361205586e-7,"iterations":7,"solve_time":0.001710864}
+{"solver":"ripopt","name":"CO2-water speciation","n":5,"m":2,"status":"Optimal","objective":0.000775592134778035,"iterations":12,"solve_time":0.000196013}
+{"solver":"ipopt","name":"CO2-water speciation","n":5,"m":2,"status":"Optimal","objective":-0.006933670187752003,"iterations":28,"solve_time":0.006515779}
+{"solver":"ripopt","name":"NaCl speciation","n":4,"m":3,"status":"Optimal","objective":-0.4832682274056858,"iterations":5,"solve_time":0.000106126}
+{"solver":"ipopt","name":"NaCl speciation","n":4,"m":3,"status":"Optimal","objective":-0.4832680501409171,"iterations":7,"solve_time":0.001309637}
+{"solver":"ripopt","name":"CaCl2+NaCl mixed","n":6,"m":4,"status":"Optimal","objective":-0.7723720012775322,"iterations":2253,"solve_time":0.027655506}
+{"solver":"ipopt","name":"CaCl2+NaCl mixed","n":6,"m":4,"status":"Optimal","objective":-0.7723713625975525,"iterations":9,"solve_time":0.002193684}
+{"solver":"ripopt","name":"Phosphoric acid","n":6,"m":2,"status":"Optimal","objective":-0.05531209113684935,"iterations":7,"solve_time":0.000125896}
+{"solver":"ipopt","name":"Phosphoric acid","n":6,"m":2,"status":"Optimal","objective":-0.05531205597235094,"iterations":6,"solve_time":0.001519315}
+{"solver":"ripopt","name":"HCl mean activity","n":1,"m":0,"status":"Optimal","objective":8.589686905781291e-16,"iterations":7,"solve_time":0.000065603}
+{"solver":"ipopt","name":"HCl mean activity","n":1,"m":0,"status":"Optimal","objective":8.892358562948893e-17,"iterations":5,"solve_time":0.001095884}
+{"solver":"ripopt","name":"NaCl solubility","n":1,"m":0,"status":"Optimal","objective":1.6006291569279337e-17,"iterations":7,"solve_time":0.000066505}
+{"solver":"ipopt","name":"NaCl solubility","n":1,"m":0,"status":"Optimal","objective":7.973263798542175e-22,"iterations":5,"solve_time":0.001082616}
+{"solver":"ripopt","name":"BuOH-water LLE","n":2,"m":2,"status":"Optimal","objective":7.825840587094075e-10,"iterations":6,"solve_time":0.000074277}
+{"solver":"ipopt","name":"BuOH-water LLE","n":2,"m":2,"status":"Optimal","objective":7.825840587101654e-10,"iterations":4,"solve_time":0.001039512}
+{"solver":"ripopt","name":"Saturated brine","n":3,"m":3,"status":"Optimal","objective":0.0,"iterations":6,"solve_time":0.000076352}
+{"solver":"ipopt","name":"Saturated brine","n":3,"m":3,"status":"Optimal","objective":0.0,"iterations":4,"solve_time":0.00113018}
+{"solver":"ripopt","name":"Pitzer NaCl fit","n":3,"m":0,"status":"Optimal","objective":6.069475133172296e-15,"iterations":6,"solve_time":0.00006514}
+{"solver":"ipopt","name":"Pitzer NaCl fit","n":3,"m":0,"status":"Optimal","objective":3.6775852734180854e-16,"iterations":5,"solve_time":0.001117582}
+{"solver":"ripopt","name":"Multi-salt DH fit","n":8,"m":0,"status":"Optimal","objective":8.885297486785424e-12,"iterations":111,"solve_time":0.001392952}
+{"solver":"ipopt","name":"Multi-salt DH fit","n":8,"m":0,"status":"Optimal","objective":4.476988619324795e-12,"iterations":247,"solve_time":0.061345619}
+{"solver":"ripopt","name":"eNRTL T-dep fit","n":4,"m":0,"status":"Optimal","objective":5.285283639145215e-13,"iterations":10,"solve_time":0.000128368}
+{"solver":"ipopt","name":"eNRTL T-dep fit","n":4,"m":0,"status":"Optimal","objective":3.740256646744455e-12,"iterations":8,"solve_time":0.001892945}
+{"solver":"ripopt","name":"Seawater speciation","n":15,"m":8,"status":"Optimal","objective":-1.3482721229153691,"iterations":24,"solve_time":0.000696286}
+{"solver":"ipopt","name":"Seawater speciation","n":15,"m":8,"status":"Infeasible","objective":-1.3706834167503898,"iterations":20,"solve_time":0.007081336}

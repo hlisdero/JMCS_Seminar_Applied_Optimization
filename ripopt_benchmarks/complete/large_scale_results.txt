@@ -1,0 +1,149 @@
+   Compiling ripopt v0.8.0 (/home/orazio/Projects/ripopt)
+    Finished `release` profile [optimized + debuginfo] target(s) in 14m 24s
+     Running unittests src/lib.rs (/home/orazio/Projects/ripopt/target/release/deps/ripopt-ba6fa76d9490aecf)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 430 filtered out; finished in 0.00s
+
+     Running unittests benchmarks/lbfgs_scaling/run.rs (/home/orazio/Projects/ripopt/target/release/deps/lbfgs_scaling-6dc3aa2e21d27fd3)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/ripopt_ampl.rs (/home/orazio/Projects/ripopt/target/release/deps/ripopt-f43cf91c4ba848c2)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/aug_kkt_path.rs (/home/orazio/Projects/ripopt/target/release/deps/aug_kkt_path-1ef0a04e3ad8f858)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.00s
+
+     Running tests/c_api.rs (/home/orazio/Projects/ripopt/target/release/deps/c_api-f3519d8ba73fe4c6)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 13 filtered out; finished in 0.00s
+
+     Running tests/correctness.rs (/home/orazio/Projects/ripopt/target/release/deps/correctness-ce2bfacddd7d7cb8)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 33 filtered out; finished in 0.00s
+
+     Running tests/electrolyte_thermo.rs (/home/orazio/Projects/ripopt/target/release/deps/electrolyte_thermo-b485dc593fd37c12)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 13 filtered out; finished in 0.00s
+
+     Running tests/feral_solvers.rs (/home/orazio/Projects/ripopt/target/release/deps/feral_solvers-1d0b633e901ec788)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 3 filtered out; finished in 0.00s
+
+     Running tests/grid.rs (/home/orazio/Projects/ripopt/target/release/deps/grid-3ac29d4b110b49f9)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.00s
+
+     Running tests/hs_problems_subset.rs (/home/orazio/Projects/ripopt/target/release/deps/hs_problems_subset-3376b1eee71024f2)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/hs_regression.rs (/home/orazio/Projects/ripopt/target/release/deps/hs_regression-a4a87b7e809a83ad)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 15 filtered out; finished in 0.00s
+
+     Running tests/ipm_paths.rs (/home/orazio/Projects/ripopt/target/release/deps/ipm_paths-833daa65220dd47d)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 18 filtered out; finished in 0.00s
+
+     Running tests/iterative_solvers.rs (/home/orazio/Projects/ripopt/target/release/deps/iterative_solvers-0c03aa590e156bb0)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.00s
+
+     Running tests/l1_penalty_barrier.rs (/home/orazio/Projects/ripopt/target/release/deps/l1_penalty_barrier-7cc6a0c4ace45aca)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.00s
+
+     Running tests/l1_penalty_barrier_probe.rs (/home/orazio/Projects/ripopt/target/release/deps/l1_penalty_barrier_probe-7c4d3e18f9b69a50)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.00s
+
+     Running tests/large_scale.rs (/home/orazio/Projects/ripopt/target/release/deps/large_scale-537eea49cb1edcd1)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 11 filtered out; finished in 0.00s
+
+     Running tests/large_scale_benchmark.rs (/home/orazio/Projects/ripopt/target/release/deps/large_scale_benchmark-c2fdc100e8108ef7)
+
+running 1 test
+
+                  Problem      n      m |     ripopt iters     time |      ipopt iters     time |  speedup
+---------------------------------------------------------------------------------------------------------
+
+******************************************************************************
+This program contains Ipopt, a library for large-scale nonlinear optimization.
+ Ipopt is released as open source code under the Eclipse Public License (EPL).
+         For more information visit https://github.com/coin-or/Ipopt
+******************************************************************************
+
+BENCH: name=Rosenbrock 500, n=500, m=0, ripopt_status=Optimal, ripopt_obj=1.561961e-26, ripopt_iters=751, ripopt_time=0.1272, ipopt_status=Optimal, ipopt_obj=2.161169e-22, ipopt_iters=749, ipopt_time=0.2804, speedup=2.20x
+BENCH: name=Bratu 1K, n=1000, m=998, ripopt_status=Optimal, ripopt_obj=0.000000e0, ripopt_iters=2, ripopt_time=0.0041, ipopt_status=Optimal, ipopt_obj=0.000000e0, ipopt_iters=2, ipopt_time=0.0030, speedup=0.74x
+BENCH: name=SparseQP 1K, n=500, m=500, ripopt_status=Optimal, ripopt_obj=-1.248170e2, ripopt_iters=6, ripopt_time=0.0073, ipopt_status=Optimal, ipopt_obj=-1.248170e2, ipopt_iters=6, ipopt_time=0.0062, speedup=0.85x
+BENCH: name=OptControl 2.5K, n=2499, m=1250, ripopt_status=Optimal, ripopt_obj=1.176959e-1, ripopt_iters=1, ripopt_time=0.0168, ipopt_status=Optimal, ipopt_obj=1.176959e-1, ipopt_iters=1, ipopt_time=0.0044, speedup=0.26x
+BENCH: name=Poisson 2.5K, n=5000, m=2500, ripopt_status=Optimal, ripopt_obj=9.945800e-2, ripopt_iters=1, ripopt_time=0.1042, ipopt_status=Optimal, ipopt_obj=9.945800e-2, ipopt_iters=1, ipopt_time=0.0176, speedup=0.17x
+BENCH: name=Rosenbrock 5K, n=5000, m=0, ripopt_status=MaxIterations, ripopt_obj=2.927492e3, ripopt_iters=2999, ripopt_time=5.3401, ipopt_status=Failed, ipopt_obj=2.927384e3, ipopt_iters=3000, ipopt_time=7.0935, speedup=1.33x
+BENCH: name=Bratu 10K, n=10000, m=9998, ripopt_status=Optimal, ripopt_obj=0.000000e0, ripopt_iters=1, ripopt_time=0.0394, ipopt_status=Optimal, ipopt_obj=0.000000e0, ipopt_iters=2, ipopt_time=0.0229, speedup=0.58x
+BENCH: name=OptControl 20K, n=19999, m=10000, ripopt_status=Optimal, ripopt_obj=1.173789e-1, ripopt_iters=1, ripopt_time=0.1668, ipopt_status=Optimal, ipopt_obj=1.173789e-1, ipopt_iters=1, ipopt_time=0.0340, speedup=0.20x
+BENCH: name=Poisson 50K, n=49928, m=24964, ripopt_status=Optimal, ripopt_obj=9.946953e-2, ripopt_iters=1, ripopt_time=2.4158, ipopt_status=Optimal, ipopt_obj=9.946953e-2, ipopt_iters=1, ipopt_time=0.2476, speedup=0.10x
+BENCH: name=SparseQP 100K, n=50000, m=50000, ripopt_status=Optimal, ripopt_obj=-1.249982e4, ripopt_iters=6, ripopt_time=1.1915, ipopt_status=Optimal, ipopt_obj=-1.249982e4, ipopt_iters=6, ipopt_time=0.6378, speedup=0.54x
+test large_scale_vs_ipopt ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 17.77s
+
+     Running tests/lbfgs_ipm.rs (/home/orazio/Projects/ripopt/target/release/deps/lbfgs_ipm-b463fd9731301671)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.00s
+
+     Running tests/nl_integration.rs (/home/orazio/Projects/ripopt/target/release/deps/nl_integration-8fb48328a09dc51e)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 19 filtered out; finished in 0.00s
+
+     Running tests/sensitivity.rs (/home/orazio/Projects/ripopt/target/release/deps/sensitivity-a12b5e3e18ac0f4f)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.00s
+
+   Doc-tests ripopt
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
+
