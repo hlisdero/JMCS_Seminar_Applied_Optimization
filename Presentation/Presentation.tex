@@ -1,6 +1,7 @@
 \documentclass{beamer}
 \usetheme{default} % very plain
 \setbeamertemplate{navigation symbols}{} % remove nav symbols
+\setbeamertemplate{footline}[frame number]
 
 % SET THE LANGUAGE TO ENGLISH %
 \usepackage[english]{babel}
@@ -106,7 +107,7 @@
           \begin{itemize}
             \item Feasibility restoration phase,
             \item Inertia correction,
-            \item Heuristics...
+            \item Various heuristics...
           \end{itemize}
     \item More benchmarks: CUTEr test set \cite{gould2003cuter}
   \end{itemize}
@@ -126,11 +127,11 @@
 
 \subsection{Techniques applied}
 
-\begin{frame}{Summary}
+\begin{frame}{Ipopt: Summary of applied techniques}
 
   \begin{itemize}
-    \item Primal-dual interior-point method with filter line-search globalization
-    \item Sparse symmetric KKT solves with inertia monitoring/correction
+    \item \fbox{Primal-dual interior-point method} with filter line-search globalization
+    \item \fbox{Sparse symmetric KKT solves} with inertia monitoring/correction
     \item Inertia correction and regularization to obtain the proper search direction
     \item Feasibility restoration phase for difficult or infeasible iterates
     \item Second-order correction steps to reduce Maratos-type effects
@@ -139,7 +140,184 @@
 
 \end{frame}
 
-\begin{frame}{Interior Point Methods}
+\begin{frame}{Interior Point Methods: Intro}
+  \vspace{-2.0em}
+
+  \begin{align}
+    \min_{x \in \mathbb{R}^n}\quad & \varphi_\mu(x) := f(x) - \mu \sum_{i=1}^n \ln\!\bigl(x^{(i)}\bigr) \\
+    \text{s.t.}\quad               & c(x) = 0                                                           \\
+    \quad                          & x \ge 0
+  \end{align}
+
+  We recover the Karush-Kuhn-Tucker (KKT) conditions for $\mu = 0$:
+
+  \vspace{-1.0em}
+
+  \begin{align}
+    \nabla f(x) + \nabla c(x)\lambda - z       & = 0                                    \\
+    c(x)                                       & = 0                                    \\
+    XZ e - \mu e                               & = 0                                    \\
+    x, z \ge 0,\qquad \lambda \in \mathbb{R}^m & , \qquad z \in \mathbb{R}^n, \nonumber \\
+    Z := \operatorname{diag}(z), e             & = (1,\dots,1)^T \nonumber
+  \end{align}
+
+  $n$: number of primal variables, $m$: number of equality constraints
+
+\end{frame}
+
+
+\begin{frame}{KKT system: Derivation}
+  \vspace{-2.0em}
+
+  \[
+    F_\mu(x,\lambda,z) =
+    \begin{bmatrix}
+      \nabla f(x) + \nabla c(x)\lambda - z \\
+      c(x)                                 \\
+      XZe - \mu e
+    \end{bmatrix} = 0
+  \]
+
+  Iteratively solve using Netwon's method:
+
+  \begin{itemize}
+    \item Fix a starting point $(x_k, \lambda_k, z_k)$,
+    \item Calculate the deltas for each dimension $(d_k^x, d_k^\lambda, d_k^z)$
+    \item Use the deltas to move to $(x_{k+1}, \lambda_{k+1}, z_{k+1})$ (more later)
+  \end{itemize}
+
+  \[
+    F_{\mu_j}(x_k,\lambda_k,z_k) + \nabla F_{\mu_j}(x_k,\lambda_k,z_k) (d_k^x, d_k^\lambda, d_k^z)^T = 0
+  \]
+
+
+  The term $\nabla F_\mu(x,\lambda,z)$ is a 3x3 matrix.
+
+  It is the Jacobian of the vector field.
+
+  We can move $F_\mu(x,\lambda,z)$ to the other side to get the form $A x = b$.
+
+\end{frame}
+
+\begin{frame}{KKT system: Matrix form}
+  \vspace{-1.0em}
+
+  \begin{align*}
+    \begin{bmatrix}
+      W_k   & A_k & -I  \\
+      A_k^T & 0   & 0   \\
+      Z_k   & 0   & X_k
+    \end{bmatrix}
+    \begin{bmatrix}
+      d_k^x       \\
+      d_k^\lambda \\
+      d_k^z
+    \end{bmatrix}
+                             & =
+    -
+    \begin{bmatrix}
+      \nabla f(x_k) + A_k \lambda_k - z_k \\
+      c(x_k)                              \\
+      X_k Z_k e - \mu_j e
+    \end{bmatrix}                                        \\[0.8em]
+    \text{where}\qquad
+    A_k                      & := \nabla c(x_k),                               \\
+    W_k                      & := \nabla^2_{xx}\mathcal{L}(x_k,\lambda_k,z_k), \\
+    \mathcal{L}(x,\lambda,z) & := f(x) + c(x)^T\lambda - z.
+  \end{align*}
+
+  But this system can be further simplified!
+
+  Multiply out the third equation:
+
+  \vspace{-1.0em}
+  \begin{align*}
+    Z_k d_k^x + X_k d_k^z      & = \mu_j e - X_k Z_k e    \\
+    d_k^z = \mu_j X_k^{-1} e - & z_k - X_k^{-1} Z_k d_k^x \\
+    \Sigma_k                   & := X_k^{-1} Z_k
+  \end{align*}
+
+\end{frame}
+
+\begin{frame}{KKT system: Symmetric matrix form}
+  \vspace{-2.0em}
+
+  Now $d_k^z$ only appears in the first equation as $-I d_k^z = - d_k^z$ which we move to the other side:
+
+  \vspace{-1.0em}
+  \begin{align*}
+    W_k d_k^x + A_k d_k^\lambda              & = - (\nabla f(x_k) + A_k \lambda_k - z_k) + d_k^z      \\
+    W_k d_k^x + A_k d_k^\lambda              & = - (\nabla f(x_k) + A_k \lambda_k - z_k) +            \\
+                                             & \qquad + \mu_j X_k^{-1} e - z_k - \Sigma_k d_k^x       \\
+    (W_k + \Sigma_k) d_k^x + A_k d_k^\lambda & = - (\nabla f(x_k) + A_k \lambda_k - \mu_j X_k^{-1} e) \\
+    (W_k + \Sigma_k) d_k^x + A_k d_k^\lambda & = - (\nabla \varphi_{\mu_j}(x_k) + A_k \lambda_k)
+  \end{align*}
+
+  Reconstructing the system, we get:
+
+  \begin{equation}
+    \begin{bmatrix}
+      W_k + \Sigma_k & A_k \\
+      A_k^T          & 0   \\
+    \end{bmatrix}
+    \begin{bmatrix}
+      d_k^x       \\
+      d_k^\lambda \\
+    \end{bmatrix}
+    =
+    -
+    \begin{bmatrix}
+      \nabla \varphi_{\mu_j}(x_k) + A_k \lambda_k \\
+      c(x_k)
+    \end{bmatrix}
+  \end{equation}
+
+\end{frame}
+
+\begin{frame}{KKT system: Important considerations}
+  \vspace{-2.0em}
+
+  \begin{equation*}
+    \begin{bmatrix}
+      W_k + \Sigma_k & A_k \\
+      A_k^T          & 0   \\
+    \end{bmatrix}
+    \begin{bmatrix}
+      d_k^x       \\
+      d_k^\lambda \\
+    \end{bmatrix}
+    =
+    -
+    \begin{bmatrix}
+      \nabla \varphi_{\mu_j}(x_k) + A_k \lambda_k \\
+      c(x_k)
+    \end{bmatrix}
+  \end{equation*}
+
+  \begin{itemize}
+    \item Symmetric system
+    \item Matrix in top-left block projected onto the null space of the constraint Jacobian $A_k^T$ is positive definite
+    \item If $A_k$ does not have full rank, the iteration matrix is singular and a solution may not exist
+  \end{itemize}
+
+  Solve instead the following system with \textbf{inertia correction} for some $\delta_w, \delta_c \ge 0$:
+
+  \begin{equation*}
+    \begin{bmatrix}
+      W_k + \Sigma_k + \delta_w I & A_k \\
+      A_k^T          & - \delta_c I  \\
+    \end{bmatrix}
+    \begin{bmatrix}
+      d_k^x       \\
+      d_k^\lambda \\
+    \end{bmatrix}
+    =
+    -
+    \begin{bmatrix}
+      \nabla \varphi_{\mu_j}(x_k) + A_k \lambda_k \\
+      c(x_k)
+    \end{bmatrix}
+  \end{equation*}
 
 \end{frame}
 
@@ -491,16 +669,20 @@
   \scriptsize
 
   \vfill
-  \textbf{Presentation}: \url{https://github.com/hlisdero/JMCS_Seminar_Applied_Optimization}
+  Presentation: \\
+  \url{https://github.com/hlisdero/JMCS_Seminar_Applied_Optimization}
 
   \vfill
-  \textbf{Modified argmin}: \url{https://github.com/hlisdero/argmin}
+  Modified argmin: \\
+  \url{https://github.com/hlisdero/argmin}
 
   \vfill
-  \textbf{ripopt}: \url{https://github.com/jkitchin/ripopt}
+  ripopt: \\
+  \url{https://github.com/jkitchin/ripopt}
 
   \vfill
-  \textbf{ipopt-rs}: \url{https://github.com/elrnv/ipopt-rs}
+  ipopt-rs: \\
+  \url{https://github.com/elrnv/ipopt-rs}
 \end{frame}
 
 \section*{Bibliography}
