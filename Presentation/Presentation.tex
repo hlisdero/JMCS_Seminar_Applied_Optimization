@@ -1,4 +1,5 @@
 \documentclass{beamer}
+\usepackage[T1]{fontenc}
 \usetheme{default} % very plain
 \setbeamertemplate{navigation symbols}{} % remove nav symbols
 \setbeamertemplate{footline}[frame number]
@@ -38,6 +39,10 @@
 \newmintinline{Rust}{
   fontsize=\small
 }
+
+% TABLES WITH BENCHMARK RESULTS %
+\usepackage{booktabs}
+\usepackage{array}
 
 \title[Ipopt revisited: Strategies to solve edge cases]{Ipopt revisited: Strategies to solve edge cases}
 \author{Horacio Lisdero Scaffino}
@@ -687,6 +692,330 @@
   \end{itemize}
 
   We will see how much of this holds up to scrutiny....
+
+\end{frame}
+
+\begin{frame}{CUTEst benchmark summary}
+  \centering
+  \footnotesize
+  \begin{tabular}{@{}lcc@{}}
+    \toprule
+    Metric                                 & ripopt                    & Ipopt                     \\
+    \midrule
+    Optimal                                & \textbf{562/745} (75.4\%) & \textbf{574/745} (77.0\%) \\
+    Acceptable                             & 16                        & 3                         \\
+    Total solved (Optimal + Acceptable)    & 578 (77.6\%)              & 577 (77.4\%)              \\
+    Solved exclusively                     & 21                        & 20                        \\
+    Both solved                            & 557                       &                           \\
+    Matching objectives (\textless 0.01\%) & 537/557                   &                           \\
+    Acceptable at worse local min          & 4                         &                           \\
+    \bottomrule
+  \end{tabular}
+
+  \vfill
+
+  \textbf{Note:} ripopt uses fallback strategies (L-BFGS Hessian, Augmented Lagrangian, SQP, slack reformulation) that Ipopt does not have, which accounts for much of the Acceptable count difference.
+
+  \vfill
+
+  \textbf{Acceptable?} This was inherited from Ipopt's own convergence framework: a solve is \emph{Optimal} if it meets tight tolerances, and \emph{Acceptable} if it meets relaxed tolerances.
+
+\end{frame}
+
+\begin{frame}{CUTEst performance}
+
+  \centering
+  \footnotesize
+  \begin{tabular}{@{}lcc@{}}
+    \toprule
+    Metric            & ripopt         & Ipopt    \\
+    \midrule
+    Median time       & 289\,\textmu s & 2.9\,ms  \\
+    Total time        & 29.76\,s       & 27.98\,s \\
+    Mean iterations   & 38.6           & 37.1     \\
+    Median iterations & 13             & 12       \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{0.8em}
+  \raggedright
+  \begin{itemize}
+    \item \textbf{Geometric mean speedup}: 7.5$\times$
+    \item \textbf{Median speedup}: 10.5$\times$
+    \item ripopt faster: 478/541 (88\%)
+    \item ripopt 10$\times$+ faster: 288/541
+    \item Ipopt faster: 63/541
+  \end{itemize}
+
+  \textbf{Comparison with committed report:} The results in the repo look slightly better. The difference could be due to the different hardware, a regression after new commits, and partly AI hallucination.
+
+\end{frame}
+
+\begin{frame}{Other test suites}
+
+  \centering
+  \footnotesize
+  \resizebox{\textwidth}{!}{%
+    \begin{tabular}{@{}lccccccc@{}}
+      \toprule
+      Suite       & N   & ripopt       & Ipopt        & r-only & i-only & Both & Match   \\
+      \midrule
+      CUTEst      & 727 & 561 (77.2\%) & 561 (77.2\%) & 20     & 20     & 541  & 522/541 \\
+      Electrolyte & 13  & 13 (100.0\%) & 12 (92.3\%)  & 1      & 0      & 12   & 11/12   \\
+      Grid        & 4   & 4 (100.0\%)  & 4 (100.0\%)  & 0      & 0      & 4    & 4/4     \\
+      CHO         & 1   & 0 (0.0\%)    & 0 (0.0\%)    & 0      & 0      & 0    & 0/1     \\
+      \bottomrule
+    \end{tabular}%
+  }
+
+  \raggedright
+  \vfill
+
+  Remarks:
+
+  \begin{itemize}
+    \item r-only: number of problems which only ripopt could solve
+    \item i-only: number of problems which only Ipopt could solve
+    \item CHO problem also not solved in report in repo. Probably a bug?
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Electrolyte and Grid performance}
+  \scriptsize
+
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.49\textwidth}
+      \textbf{Electrolyte suite (12 problems) \footnote{\tiny 12 instead of 13, unclear why}}
+
+      \vspace{0.4em}
+      \centering
+      \begin{tabular}{@{}lcc@{}}
+        \toprule
+        Metric            & ripopt         & Ipopt    \\
+        \midrule
+        Median time       & 121\,\textmu s & 1.5\,ms  \\
+        Total time        & 30.1\,ms       & 82.0\,ms \\
+        Mean iterations   & 203.1          & 27.9     \\
+        Median iterations & 7              & 7        \\
+        \bottomrule
+      \end{tabular}
+
+      \vspace{0.5em}
+      \raggedright
+      \begin{itemize}
+        \item \textbf{Geometric mean speedup}: 11.1$\times$
+        \item \textbf{Median speedup}: 14.8$\times$
+        \item ripopt faster: 11/12 (92\%)
+        \item ripopt 10$\times$+ faster: 11/12
+        \item Ipopt faster: 1/12
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.49\textwidth}
+      \textbf{Grid suite (4 problems)}
+
+      \vspace{0.4em}
+      \centering
+      \begin{tabular}{@{}lcc@{}}
+        \toprule
+        Metric            & ripopt    & Ipopt     \\
+        \midrule
+        Median time       & 19.0\,ms  & 16.2\,ms  \\
+        Total time        & 114.7\,ms & 157.4\,ms \\
+        Mean iterations   & 15.8      & 12.5      \\
+        Median iterations & 19        & 14        \\
+        \bottomrule
+      \end{tabular}
+
+      \vspace{0.5em}
+      \raggedright
+      \begin{itemize}
+        \item \textbf{Geometric mean speedup}: 1.8$\times$
+        \item \textbf{Median speedup}: 1.8$\times$
+        \item ripopt faster: 3/4 (75\%)
+        \item ripopt 10$\times$+ faster: 0/4
+        \item Ipopt faster: 1/4
+      \end{itemize}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}{CUTEst Suite: failure modes}
+  \centering
+  \footnotesize
+  \begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.48\textwidth}cc@{}}
+    \toprule
+    Failure Mode           & ripopt & Ipopt \\
+    \midrule
+    ErrorInStepComputation & 0      & 2     \\
+    EvaluationError        & 3      & 0     \\
+    Infeasible             & 0      & 10    \\
+    InvalidNumberDetected  & 0      & 1     \\
+    IpoptStatus(-10)       & 0      & 123   \\
+    IpoptStatus(4)         & 0      & 3     \\
+    LocalInfeasibility     & 27     & 0     \\
+    MaxIterations          & 22     & 12    \\
+    MaxTimeExceeded        & 15     & 0     \\
+    NumericalError         & 11     & 0     \\
+    RestorationFailed      & 70     & 4     \\
+    StopAtTinyStep         & 1      & 0     \\
+    Timeout                & 17     & 11    \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{1em}
+
+  \tiny
+  IpoptStatus(-10) = not enough degrees of freedom (typically overconstrained model). IpoptStatus(4) = diverging iterates. InvalidNumberDetected = NaN/Inf in functions or derivatives. RestorationFailed = feasibility restoration failed.
+
+
+\end{frame}
+
+\begin{frame}{Regressions: Ipopt solves, ripopt fails (1/2)}
+
+  \centering
+  \scriptsize
+  \resizebox{\textwidth}{!}{%
+    \begin{tabular}{@{}llrrlc@{}}
+      \toprule
+      Problem    & $n$ & $m$  & ripopt status     & Ipopt obj     \\
+      \midrule
+      DECONVBNE  & 63  & 40   & Timeout           & 0.000000e+00  \\
+      DISCS      & 36  & 66   & Timeout           & 1.528822e+01  \\
+      HAIFAS     & 13  & 9    & NumericalError    & -4.500000e-01 \\
+      HATFLDFLNE & 3   & 3    & RestorationFailed & 0.000000e+00  \\
+      HIMMELP4   & 2   & 3    & NumericalError    & -5.901318e+01 \\
+      HS59       & 2   & 3    & NumericalError    & -6.749505e+00 \\
+      HS91       & 5   & 1    & NumericalError    & 1.362646e+00  \\
+      LOGHAIRY   & 2   & 0    & MaxIterations     & 1.823216e-01  \\
+      OET6       & 5   & 1002 & NumericalError    & 2.069727e-03  \\
+      OET7       & 7   & 1002 & NumericalError    & 4.446419e-05  \\
+      \bottomrule
+    \end{tabular}%
+  }
+
+  \tiny
+  \vfill
+  All in the CUTEst suite
+\end{frame}
+
+\begin{frame}{Regressions: Ipopt solves, ripopt fails (2/2)}
+  \centering
+  \scriptsize
+  \resizebox{\textwidth}{!}{%
+    \begin{tabular}{@{}llrrlc@{}}
+      \toprule
+      Problem   & $n$ & $m$  & ripopt status     & Ipopt obj     \\
+      \midrule
+      PALMER1   & 4   & 0    & MaxIterations     & 1.175460e+04  \\
+      PALMER2   & 4   & 0    & MaxIterations     & 3.651098e+03  \\
+      PALMER3   & 4   & 0    & MaxIterations     & 2.416980e+03  \\
+      PALMER4   & 4   & 0    & MaxIterations     & 2.285383e+03  \\
+      PFIT3     & 3   & 3    & RestorationFailed & 0.000000e+00  \\
+      SIPOW2    & 2   & 2000 & MaxIterations     & -1.000000e+00 \\
+      SSINE     & 3   & 2    & MaxIterations     & 0.000000e+00  \\
+      TAXR13322 & 72  & 1261 & MaxTimeExceeded   & -6.449419e+04 \\
+      TRO3X3    & 30  & 13   & MaxIterations     & 8.967215e+00  \\
+      WEEDS     & 3   & 0    & MaxIterations     & 2.587277e+00  \\
+      \bottomrule
+    \end{tabular}%
+  }
+
+  \tiny
+  \vfill
+  All in the CUTEst suite
+\end{frame}
+
+\begin{frame}{Wins: ripopt solves, Ipopt fails (1/2)}
+  \centering
+  \scriptsize
+  \resizebox{\textwidth}{!}{%
+    \begin{tabular}{@{}llrrlc@{}}
+      \toprule
+      Problem    & $n$ & $m$ & Ipopt status           & ripopt obj    \\
+      \midrule
+      AVION2     & 49  & 15  & MaxIterations          & 9.468013e+07  \\
+      BEALENE    & 2   & 3   & IpoptStatus(-10)       & 0.000000e+00  \\
+      BIGGS6NE   & 6   & 13  & IpoptStatus(-10)       & 0.000000e+00  \\
+      BOX3NE     & 3   & 10  & IpoptStatus(-10)       & 0.000000e+00  \\
+      BROWNBSNE  & 2   & 3   & IpoptStatus(-10)       & 0.000000e+00  \\
+      DECONVB    & 63  & 0   & MaxIterations          & 3.318319e-03  \\
+      DENSCHNBNE & 2   & 3   & IpoptStatus(-10)       & 0.000000e+00  \\
+      DEVGLA1NE  & 4   & 24  & IpoptStatus(-10)       & 0.000000e+00  \\
+      DEVGLA2NE  & 5   & 16  & IpoptStatus(-10)       & 0.000000e+00  \\
+      ENGVAL2NE  & 3   & 5   & IpoptStatus(-10)       & 0.000000e+00  \\
+      EQC        & 9   & 3   & ErrorInStepComputation & -8.293542e+02 \\
+      \bottomrule
+    \end{tabular}%
+  }
+
+  \tiny
+  \vfill
+  All in the CUTEst suite
+\end{frame}
+
+\begin{frame}{Wins: ripopt solves, Ipopt fails (2/2)}
+  \centering
+  \scriptsize
+  \resizebox{\textwidth}{!}{%
+    \begin{tabular}{@{}llrrlc@{}}
+      \toprule
+      Problem   & $n$ & $m$ & Ipopt status      & ripopt obj   \\
+      \midrule
+      EXP2NE    & 2   & 10  & IpoptStatus(-10)  & 0.000000e+00 \\
+      GROUPING  & 100 & 125 & IpoptStatus(-10)  & 1.385040e+01 \\
+      HS25NE    & 3   & 99  & IpoptStatus(-10)  & 0.000000e+00 \\
+      LANCZOS1  & 6   & 24  & IpoptStatus(-10)  & 0.000000e+00 \\
+      LEVYMONE5 & 2   & 4   & IpoptStatus(-10)  & 0.000000e+00 \\
+      LEWISPOL  & 6   & 9   & IpoptStatus(-10)  & 2.999995e+00 \\
+      PFIT2     & 3   & 3   & RestorationFailed & 0.000000e+00 \\
+      PFIT4     & 3   & 3   & RestorationFailed & 0.000000e+00 \\
+      POLAK3    & 12  & 10  & MaxIterations     & 5.933003e+00 \\
+      \bottomrule
+    \end{tabular}%
+  }
+
+  \tiny
+  \vfill
+  All in the CUTEst suite
+\end{frame}
+
+\begin{frame}{Large scale problems: Solver comparison}
+  \scriptsize
+
+  \vspace{0.5em}
+  \centering
+  \resizebox{\textwidth}{!}{%
+    \begin{tabular}{@{}lrrlrlrlr@{}}
+      \toprule
+      Problem         & $n$    & $m$    & ripopt        & iters & time   & Ipopt   & iters & time   \\
+      \midrule
+      Rosenbrock 500  & 500    & 0      & Optimal       & 751   & 0.127s & Optimal & 749   & 0.280s \\
+      SparseQP 1K     & 500    & 500    & Optimal       & 6     & 0.007s & Optimal & 6     & 0.006s \\
+      Bratu 1K        & 1,000  & 998    & Optimal       & 2     & 0.004s & Optimal & 2     & 0.003s \\
+      OptControl 2.5K & 2,499  & 1,250  & Optimal       & 1     & 0.017s & Optimal & 1     & 0.004s \\
+      Rosenbrock 5K   & 5,000  & 0      & MaxIterations & 2999  & 5.340s & Failed  & 3000  & 7.093s \\
+      Poisson 2.5K    & 5,000  & 2,500  & Optimal       & 1     & 0.104s & Optimal & 1     & 0.018s \\
+      Bratu 10K       & 10,000 & 9,998  & Optimal       & 1     & 0.039s & Optimal & 2     & 0.023s \\
+      OptControl 20K  & 19,999 & 10,000 & Optimal       & 1     & 0.167s & Optimal & 1     & 0.034s \\
+      Poisson 50K     & 49,928 & 24,964 & Optimal       & 1     & 2.416s & Optimal & 1     & 0.248s \\
+      SparseQP 100K   & 50,000 & 50,000 & Optimal       & 6     & 1.192s & Optimal & 6     & 0.638s \\
+      \bottomrule
+    \end{tabular}%
+  }
+
+  \vspace{0.6em}
+  \begin{itemize}
+    \item ripopt: \textbf{9/10 solved} in 9.4s total
+    \item Ipopt: \textbf{9/10 solved} in 8.3s total
+    \item Speedups (time iopt/time ripopt): \\ 2.2x, 0.8x, 0.7x, 0.3x, 1.3x, 0.2x, 0.6x, 0.2x, 0.1x, 0.5x
+  \end{itemize}
+
+  \vfill
+
+  \textbf{Bottom line:} ripopt is slower with larger problems due to less performant linear solver
 
 \end{frame}
 
