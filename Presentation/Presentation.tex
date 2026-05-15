@@ -304,8 +304,8 @@
 
   \begin{equation*}
     \begin{bmatrix}
-      W_k + \Sigma_k + \delta_w I & A_k \\
-      A_k^T          & - \delta_c I  \\
+      W_k + \Sigma_k + \delta_w I & A_k          \\
+      A_k^T                       & - \delta_c I \\
     \end{bmatrix}
     \begin{bmatrix}
       d_k^x       \\
@@ -629,15 +629,64 @@
 
 \begin{frame}{ripopt: A Rust re-write from February 2026}
 
-  Coded in ~60/70 hs during the course of 6 weeks heavily relying on Claude Code \cite{kitchin_ripopt}.
+  Coded in \textasciitilde60/70 hs during the course of 6 weeks heavily relying on Claude Code \cite{kitchin_ripopt}.
 
   \vfill
 
-  According to the benchmarks CUTEst and xxxx, it already beats Ipopt.
+  Opus 4.6 with a 1M context window. Several agents running in parallel.
 
   \vfill
 
-  Interesting insights into licensing issues and thought process documented in the repo.
+  License? EPL, same as Ipopt. Author considers it a derivative work.
+
+  \vfill
+
+  Linear algebra solver?
+
+  \begin{itemize}
+    \item First relied on a reimplementation of MUMPS \cite{mumps_website}
+    \item Since April 26, it relies on a separate AI-coded solver by the same author \cite{kitchin_feral}
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}{ripopt: Licensing}
+
+  Author's impression:
+
+  \emph{For small problems there are compelling reasons to be excited about ripopt. For larger problems, there is still a lot of work to do to make it competitive.}
+
+  \vfill
+
+  Interesting insights into thought process documented in the repo.
+
+  \vfill
+
+  It is not a "clean room" development.
+
+  \vfill
+
+  \textbf{Caution!}
+
+  \emph{I have not read all the generated code (I don't even really know how to write Rust, but it is readable). It was generated faster than I could read or understand. }
+
+\end{frame}
+
+\begin{frame}[fragile]{ripopt: Benchmarks used}
+
+  Benchmarks and testing are key to make sure that it actually works!
+
+  \begin{itemize}
+    \item Hock-Schittkowski test suite (120 problems) \cite{schittkowski2012nonlinear,schittkowski2008testproblems} \footnote{\tiny The repo uses a certain smaller set of 120 problems; the papers list 306 problems.}
+    \item CUTEst 745 problems \cite{gould2015cutest}
+    \item Electrical grid optimization problems (4 problems) \cite{zimmerman2010matpower} \footnote{\tiny AC Optimal Power Flow (ACOPF)}
+    \item Gas pipeline problems (4 problems) \cite{sakshi21299_gas_networks}
+    \item Electrolyte thermodynamics problems (13 problems)
+    \item Parameter estimation for a CHO (Chinese Hamster Ovary) cell kinetic model (1 problem)
+    \item Water distribution network problems (6 problems)
+  \end{itemize}
+
+  We will see how much of this holds up to scrutiny....
 
 \end{frame}
 
@@ -687,7 +736,7 @@
 
 \section*{Bibliography}
 
-\begin{frame}{Bibliography}
+\begin{frame}[allowframebreaks]{Bibliography}
   \tiny
   \bibliographystyle{ieeetr}
   \bibliography{
