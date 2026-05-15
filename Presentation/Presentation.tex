@@ -677,7 +677,7 @@
 
 \end{frame}
 
-\begin{frame}[fragile]{ripopt: Benchmarks used}
+\begin{frame}{ripopt: Benchmarks used}
 
   Benchmarks and testing are key to make sure that it actually works!
 
@@ -692,6 +692,31 @@
   \end{itemize}
 
   We will see how much of this holds up to scrutiny....
+
+\end{frame}
+
+\begin{frame}{It's just replicating the results, right?}
+
+  \centering
+  \includegraphics[width=\textwidth]{github-issue-start.png}
+
+\end{frame}
+
+
+\begin{frame}{How it got fixed}
+
+  After....
+
+  \begin{itemize}
+    \item a few hallucinated links,
+    \item understanding how to install CUTEst locally and compiling the Fortran code,
+    \item pointing out missing scripts,
+    \item discovering a Linux-specific issue when linking the ipopt library,
+    \item testing the automated CUTEst installation flow from scratch,
+    \item finding a collision in the name of two Fortran functions,
+    \item testing every Makefile target,
+    \item spotting the missing Hoch-Schittkowski test suite (removed)...
+  \end{itemize}
 
 \end{frame}
 
