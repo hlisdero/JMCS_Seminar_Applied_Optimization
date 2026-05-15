@@ -44,7 +44,7 @@
 \usepackage{booktabs}
 \usepackage{array}
 
-\title[Ipopt revisited: Strategies to solve edge cases]{Ipopt revisited: Strategies to solve edge cases}
+\title[Ipopt revisited in Rust]{Ipopt revisited in Rust}
 \author{Horacio Lisdero Scaffino}
 \date{May 21, 2026}
 
@@ -396,6 +396,42 @@
 
 \end{frame}
 
+\begin{frame}{argmin: Architecture}
+
+  \centering
+  \includegraphics[width=\textwidth]{argmin-architecture.drawio.png}
+
+\end{frame}
+
+\begin{frame}{Math backends}
+
+  The math backend is implemented in a separate crate \texttt{argmin-math}
+
+  \vfill
+
+  It is trait-based: interfaces define the methods required from the linear algebra backend
+
+  \vfill
+
+  \begin{itemize}
+    \item \texttt{nalgebra} \cite{nalgebra-rs}
+    \item \texttt{faer} \cite{faer-rs}
+  \end{itemize}
+
+  \vfill
+
+  Following the existing architecture, every matrix operation should be generic over the backend.
+
+  \vfill
+
+  But for this toy implementation it would be overkill \dots
+
+  \vfill
+
+  I decided to take a shortcut and implement a solver tightly coupled to \texttt{nalgebra}.
+
+\end{frame}
+
 \begin{frame}[fragile]{argmin: Code example}
 
   \begin{listing}
@@ -426,30 +462,19 @@
             }
         }
     \end{minted}
+
+    \vfill
+
+    \tiny
+    Notice: The matrix is being inverted at every step (inefficient!). No linear solver $Ax = b$ in the codebase.
   \end{listing}
 
 \end{frame}
 
-\begin{frame}{Math backends}
-
-  The math backend is implemented in a separate crate \texttt{argmin-math}
-
-  \vfill
-
-  It is trait-based: interfaces define the methods required from the linear algebra backend
-
-  \vfill
-
-  \begin{itemize}
-    \item \texttt{nalgebra} \cite{nalgebra-rs}
-    \item \texttt{faer} \cite{faer-rs}
-  \end{itemize}
-
-\end{frame}
 
 \subsection{Challenges encountered}
 
-\begin{frame}[fragile]{Add a solver}
+\begin{frame}[fragile]{Add a linear solver}
 
   Add a trait:
 
@@ -506,9 +531,8 @@
     \end{minted}
   \end{listing}
 
-\end{frame}
-
-\begin{frame}[fragile]{And their derivatives...}
+  \tiny
+  And their derivatives \dots
 
   \begin{listing}
     \begin{minted}[fontsize=\tiny, frame=none]{Rust}
@@ -529,7 +553,10 @@
 
 \end{frame}
 
-\begin{frame}[fragile]{And the Hessian of the Lagrangian...}
+\begin{frame}[fragile]{And the Hessian of the Lagrangian \dots}
+
+  \tiny
+  The existing \texttt{Hessian} is not enough. We need Lagrange multipliers as well \dots
 
   \begin{listing}
     \begin{minted}[fontsize=\tiny, frame=none]{Rust}
@@ -564,52 +591,38 @@
 
 \end{frame}
 
-\begin{frame}{And iteration state for NLP...}
+\begin{frame}{And iteration state for NLP \dots}
 
   \scriptsize
+  Lots of new things to keep track of!
 
-  \begin{columns}[T,onlytextwidth]
-    \column{0.48\textwidth}
-    \begin{itemize}
-      \item \texttt{param: Option<P>}
-      \item \texttt{slacks: Option<S>}
-      \item \texttt{best\_param: Option<P>}
-      \item \texttt{best\_slacks: Option<S>}
-      \item \texttt{cost: F}
-      \item \texttt{best\_cost: F}
-      \item \texttt{target\_cost: F}
-      \item \texttt{grad: Option<G>}
-      \item \texttt{lagrangian\_hessian: Option<LH>}
-      \item \texttt{equality\_constraints: Option<EqC>}
-      \item \texttt{inequality\_constraints: Option<IneqC>}
-      \item \texttt{equality\_constraint\_jacobian: Option<EqCJ>}
-      \item \texttt{inequality\_constraint\_jacobian: Option<IneqCJ>}
-      \item \texttt{mu: Option<F>}
-    \end{itemize}
+  \vfill
 
-    \column{0.48\textwidth}
-    \begin{itemize}
-      \item \texttt{lambda\_eq: Option<LambdaEq>}
-      \item \texttt{lambda\_ineq: Option<LambdaIneq>}
-      \item \texttt{alpha\_primal: Option<F>}
-      \item \texttt{alpha\_dual: Option<F>}
-      \item \texttt{inf\_pr: Option<F>}
-      \item \texttt{inf\_du: Option<F>}
-      \item \texttt{compl\_inf: Option<F>}
-      \item \texttt{iter: u64}
-      \item \texttt{last\_best\_iter: u64}
-      \item \texttt{max\_iters: u64}
-      \item \texttt{counts: HashMap<String, u64>}
-      \item \texttt{counting\_enabled: bool}
-      \item \texttt{time: Option<Duration>}
-      \item \texttt{termination\_status: TerminationStatus}
-    \end{itemize}
-  \end{columns}
+  \begin{itemize}
+    \item \texttt{slacks}
+    \item \texttt{best\_slacks}
+    \item \texttt{lagrangian\_hessian}
+    \item \texttt{equality\_constraints}
+    \item \texttt{inequality\_constraints}
+    \item \texttt{equality\_constraint\_jacobian}
+    \item \texttt{inequality\_constraint\_jacobian}
+    \item \texttt{mu}
+    \item \texttt{lambda\_eq}
+    \item \texttt{lambda\_ineq}
+    \item \texttt{alpha\_primal}
+    \item \texttt{alpha\_dual}
+    \item \texttt{inf\_pr}
+    \item \texttt{inf\_du}
+    \item \texttt{compl\_inf}
+  \end{itemize}
+
+  \vfill
+
+  The resulting \texttt{NonLinearProgramState} is generic over 11 types!
 
 \end{frame}
 
 \begin{frame}{Finally! IPM}
-
 
   \texttt{nalgebra\_backend.rs}: All the linear-algebra-specific logic for nalgebra, the only supported backend
 
@@ -629,12 +642,19 @@
 
 \subsection{Results}
 
+\begin{frame}{Results: TODO}
+
+This is where the results of the implementation would go.
+
+\end{frame}
 
 \section{A tour of ripopt}
 
+\subsection{Context}
+
 \begin{frame}{ripopt: A Rust re-write from February 2026}
 
-  Coded in \textasciitilde60/70 hs during the course of 6 weeks heavily relying on Claude Code \cite{kitchin_ripopt}.
+  Coded in $\sim$60/70 hs during the course of 6 weeks heavily relying on Claude Code \cite{kitchin_ripopt}.
 
   \vfill
 
@@ -695,6 +715,8 @@
 
 \end{frame}
 
+\subsection{Benchmarks}
+
 \begin{frame}{It's just replicating the results, right?}
 
   \centering
@@ -705,7 +727,7 @@
 
 \begin{frame}{How it got fixed}
 
-  After....
+  After \dots
 
   \begin{itemize}
     \item a few hallucinated links,
@@ -1043,11 +1065,6 @@
   \textbf{Bottom line:} ripopt is slower with larger problems due to less performant linear solver
 
 \end{frame}
-
-\section{Experiments}
-
-\subsection{What can we learn}
-
 
 \section{Conclusion}
 
