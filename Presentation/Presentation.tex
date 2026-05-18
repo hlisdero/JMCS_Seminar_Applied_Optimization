@@ -53,7 +53,9 @@
 % Make sure to set VS Code extension to use biblatex as a backend: https://tex.stackexchange.com/questions/406205/no-citation-bibdata-or-bibstyle-command
 
 \title[Ipopt and Rust: An exploration of the ecosystem]{Ipopt and Rust: An exploration of the ecosystem}
-\author{Horacio Lisdero Scaffino}
+\subtitle{Seminar Applied Optimization - University of Bern}
+\author{Student: Horacio Lisdero Scaffino}
+\institute{Supervisor: Ningfeng Zhou}
 \date{May 21, 2026}
 
 \AtBeginSection[]
@@ -682,14 +684,14 @@
 
 \begin{frame}{ripopt: A Rust re-write from February 2026}
 
-  Coded in $\sim$60/70 hs during 6 weeks with Claude Code\footnote{\url{https://github.com/jkitchin/ripopt}}
+  Coded in $\sim$60/70 hs during 6 weeks with Claude Code\footnote{\tiny \url{https://github.com/jkitchin/ripopt}}
 
   \vfill
   Size? $\sim$21,700 lines with no external C/Fortran dependencies
 
   \vfill
 
-  By who? Prof. John Kitchin, Chemical Engineering at Carnegie Mellon\footnote{\url{https://engineering.cmu.edu/directory/bios/kitchin-john.html}}
+  By who? Prof. John Kitchin, Chemical Engineering at Carnegie Mellon\footnote{\tiny \url{https://engineering.cmu.edu/directory/bios/kitchin-john.html}}
 
   \vfill
 
@@ -700,8 +702,8 @@
   Linear algebra solver?
 
   \begin{itemize}
-    \item First relied on a reimplementation of MUMPS\footnote{\url{https://mumps-solver.org/}}
-    \item Since April 26, separate AI-coded solver by the same author\footnote{\url{https://github.com/jkitchin/feral}}
+    \item First relied on a reimplementation of MUMPS\footnote{\tiny MUltifrontal Massively Parallel sparse direct Solver: \url{https://mumps-solver.org/}}
+    \item Since April 26, separate AI-coded solver by the same author\footnote{\tiny \url{https://github.com/jkitchin/feral}}
 
   \end{itemize}
 
@@ -980,36 +982,6 @@
 
 \end{frame}
 
-\begin{frame}{CUTEst Suite: failure modes}
-  \centering
-  \footnotesize
-  \begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.48\textwidth}cc@{}}
-    \toprule
-    Failure Mode           & ripopt & Ipopt \\
-    \midrule
-    ErrorInStepComputation & 0      & 2     \\
-    EvaluationError        & 3      & 0     \\
-    Infeasible             & 0      & 10    \\
-    InvalidNumberDetected  & 0      & 1     \\
-    IpoptStatus(-10)       & 0      & 123   \\
-    IpoptStatus(4)         & 0      & 3     \\
-    LocalInfeasibility     & 27     & 0     \\
-    MaxIterations          & 22     & 12    \\
-    MaxTimeExceeded        & 15     & 0     \\
-    NumericalError         & 11     & 0     \\
-    RestorationFailed      & 70     & 4     \\
-    StopAtTinyStep         & 1      & 0     \\
-    Timeout                & 17     & 11    \\
-    \bottomrule
-  \end{tabular}
-
-  \vspace{1em}
-
-  \tiny
-  IpoptStatus(-10) = not enough degrees of freedom (typically overconstrained model). IpoptStatus(4) = diverging iterates. InvalidNumberDetected = NaN/Inf in functions or derivatives. RestorationFailed = feasibility restoration failed.
-
-\end{frame}
-
 \begin{frame}{Large scale problems: Solver comparison}
   \scriptsize
 
@@ -1047,19 +1019,81 @@
 
 \end{frame}
 
+\begin{frame}{How would you troubleshoot an issue?}
+
+  ipopt reports more than symply "Optimal" / "Not optimal". \\
+  The return value (as we will see shortly) is the starting point.
+
+  \vfill
+
+  The repo contains several executables that demonstrates issues with specific problems from the test suites.
+  These act as regression tests as development progresses.
+
+  \vfill
+
+  Nonetheless, the number of unit tests is relative small: 565 tests \\
+  And test coverage results ($sim$78.78\%) may be misleading.
+
+\end{frame}
+
+\begin{frame}{CUTEst Suite: failure modes}
+  \centering
+  \footnotesize
+  \begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.48\textwidth}cc@{}}
+    \toprule
+    Failure Mode           & ripopt & Ipopt \\
+    \midrule
+    ErrorInStepComputation & 0      & 2     \\
+    EvaluationError        & 3      & 0     \\
+    Infeasible             & 0      & 10    \\
+    InvalidNumberDetected  & 0      & 1     \\
+    IpoptStatus(-10)       & 0      & 123   \\
+    IpoptStatus(4)         & 0      & 3     \\
+    LocalInfeasibility     & 27     & 0     \\
+    MaxIterations          & 22     & 12    \\
+    MaxTimeExceeded        & 15     & 0     \\
+    NumericalError         & 11     & 0     \\
+    RestorationFailed      & 70     & 4     \\
+    StopAtTinyStep         & 1      & 0     \\
+    Timeout                & 17     & 11    \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{1em}
+
+  \tiny
+  IpoptStatus(-10) = not enough degrees of freedom (typically overconstrained model). IpoptStatus(4) = diverging iterates. InvalidNumberDetected = NaN/Inf in functions or derivatives. RestorationFailed = feasibility restoration failed.
+
+\end{frame}
+
+\begin{frame}{Advice on ipopt}
+
+  \begin{enumerate}
+    \item Not ready for production
+    \item For small problems usable
+    \item For large problems still not competitive
+    \item If people start using it, it will become better
+  \end{enumerate}
+
+\end{frame}
+
 \section{Conclusion}
 
 \begin{frame}{Conclusion}
 
-  Ipopt's performance can still be improved.
+  Ipopt's performance may be improved by leveraging Rust's zero cost abstractions
+
+  \begin{flushright}
+    \scriptsize but you need a mature linear solver in Rust as well
+  \end{flushright}
 
   \vfill
 
-  Different methods complement each other: By combining them, edge cases can be solved more efficiently.
+  Implementation of a state-of-the-art optimization package may be in the reach of modern AI agentic coding tools
 
-  \vfill
-
-  Implementation of a state-of-the-art optimization package may be in the reach of modern AI agentic coding tools.
+  \begin{flushright}
+    \scriptsize but it does \emph{NOT} replace human know-how and decades of careful optimization
+  \end{flushright}
 
 \end{frame}
 
