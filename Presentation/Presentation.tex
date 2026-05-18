@@ -103,10 +103,10 @@
 
   \begin{itemize}
     \item PhD thesis by Andreas Wächter in 2002 at Carnegie Mellon \footcite{wachter2002interior}
-    \item Since 2002 part of the COIN-OP foundation \cite{coinop_ipopt}
+    \item Since 2002 part of the COIN-OP foundation \nocite{coinop_ipopt}
     \item Original implementation in Fortran 77 (1.x and 2.x), now deprecated
     \item Open source since the start
-    \item Benchmarked against KNITRO (1999) and LOQO (1999) \cite{byrd1999interior, vanderbei1999loqo}
+    \item Benchmarked against KNITRO (1999) \footcite{byrd1999interior} and LOQO (1999) \footcite{vanderbei1999loqo}
   \end{itemize}
 
 \end{frame}
@@ -114,7 +114,7 @@
 \begin{frame}{Ipopt: Subsequent paper}
 
   \begin{itemize}
-    \item Paper by Wächter and Biegler in 2006 \cite{wachter2006implementation}
+    \item Paper by Wächter and Biegler in 2006 \footcite{wachter2006implementation}
     \item More focused on the central algorithm of Ipopt
     \item Features described more in detail
           \begin{itemize}
@@ -122,7 +122,7 @@
             \item Inertia correction,
             \item Various heuristics...
           \end{itemize}
-    \item More benchmarks: CUTEr test set \cite{gould2003cuter}
+    \item More benchmarks: CUTEr test set \footcite{gould2003cuter}
   \end{itemize}
 
 \end{frame}
@@ -131,7 +131,7 @@
 
   \begin{itemize}
     \item IBM Research decided to invest in an open source re-write of Ipopt in C++
-    \item With the help of Carl Laird, the code was re-implemented from scratch \cite{IpoptDocs}
+    \item With the help of Carl Laird, the code was re-implemented from scratch \footnote{\href{https://coin-or.github.io/Ipopt/\#HISTORY\_IPOPT}{History of Ipopt} }
     \item 3.x published in Aug 2005
     \item It is still actively developed on GitHub
   \end{itemize}
@@ -394,7 +394,7 @@
 
   \vfill
 
-  \tiny Website \cite{argmin-rs}
+  \tiny Website \footnote{\url{https://argmin-rs.org/}}
   \centering
   \includegraphics[width=\textwidth]{argmin-features.png}
 
@@ -422,8 +422,8 @@
   \vfill
 
   \begin{itemize}
-    \item \texttt{nalgebra} \cite{nalgebra-rs}
-    \item \texttt{faer} \cite{faer-rs}
+    \item \texttt{nalgebra} \footnote{\url{https://nalgebra.rs/}}
+    \item \texttt{faer} \footnote{\url{https://faer.veganb.tw/}}
   \end{itemize}
 
   \vfill
@@ -662,7 +662,7 @@
 
 \begin{frame}{ripopt: A Rust re-write from February 2026}
 
-  Coded in $\sim$60/70 hs during the course of 6 weeks heavily relying on Claude Code \cite{kitchin_ripopt}.
+  Coded in $\sim$60/70 hs during the course of 6 weeks heavily relying on Claude Code \footnote{\url{https://github.com/jkitchin/ripopt}}.
 
   \vfill
 
@@ -677,8 +677,8 @@
   Linear algebra solver?
 
   \begin{itemize}
-    \item First relied on a reimplementation of MUMPS \cite{mumps_website}
-    \item Since April 26, it relies on a separate AI-coded solver by the same author \cite{kitchin_feral}
+    \item First relied on a reimplementation of MUMPS \footnote{\url{https://mumps-solver.org/}}
+    \item Since April 26, it relies on a separate AI-coded solver by the same author \footnote{\url{https://github.com/jkitchin/feral}}
   \end{itemize}
 
 \end{frame}
@@ -710,10 +710,10 @@
   Benchmarks and testing are key to make sure that it actually works!
 
   \begin{itemize}
-    \item Hock-Schittkowski test suite (120 problems) \cite{schittkowski2012nonlinear,schittkowski2008testproblems} \footnote{\tiny The repo uses a certain smaller set of 120 problems; the papers list 306 problems.}
-    \item CUTEst 745 problems \cite{gould2015cutest}
-    \item Electrical grid optimization problems (4 problems) \cite{zimmerman2010matpower} \footnote{\tiny AC Optimal Power Flow (ACOPF)}
-    \item Gas pipeline problems (4 problems) \cite{sakshi21299_gas_networks}
+    \item Hock-Schittkowski \footcite{schittkowski2012nonlinear,schittkowski2008testproblems} test suite (120 problems / 306 in total)
+    \item CUTEst 745 problems \footcite{gould2015cutest}
+    \item Electrical grid optimization problems (4 problems) \footcite{zimmerman2010matpower}
+    \item Gas pipeline problems (4 problems)
     \item Electrolyte thermodynamics problems (13 problems)
     \item Parameter estimation for a CHO (Chinese Hamster Ovary) cell kinetic model (1 problem)
     \item Water distribution network problems (6 problems)
@@ -1116,7 +1116,7 @@
 \section*{Bibliography}
 
 \begin{frame}[allowframebreaks]{Bibliography}
-  \tiny
+  \nocite{*}
   \printbibliography
 \end{frame}
 
