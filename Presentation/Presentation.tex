@@ -682,15 +682,18 @@
 
 \begin{frame}{ripopt: A Rust re-write from February 2026}
 
-  Coded in $\sim$60/70 hs during the course of 6 weeks heavily relying on Claude Code\footnote{\url{https://github.com/jkitchin/ripopt}}.
+  Coded in $\sim$60/70 hs during 6 weeks with Claude Code\footnote{\url{https://github.com/jkitchin/ripopt}}
+
+  \vfill
+  Size? $\sim$21,700 lines with no external C/Fortran dependencies
 
   \vfill
 
-  Opus 4.6 with a 1M context window. Several agents running in parallel.
+  By who? Prof. John Kitchin, Chemical Engineering at Carnegie Mellon\footnote{\url{https://engineering.cmu.edu/directory/bios/kitchin-john.html}}
 
   \vfill
 
-  License? EPL, same as Ipopt. Author considers it a derivative work.
+  Tool? Opus 4.6 with a 1M context window. Several agents running in parallel. 200 USD per month.
 
   \vfill
 
@@ -698,24 +701,35 @@
 
   \begin{itemize}
     \item First relied on a reimplementation of MUMPS\footnote{\url{https://mumps-solver.org/}}
-    \item Since April 26, it relies on a separate AI-coded solver by the same author\footnote{\url{https://github.com/jkitchin/feral}}
+    \item Since April 26, separate AI-coded solver by the same author\footnote{\url{https://github.com/jkitchin/feral}}
+
   \end{itemize}
 
 \end{frame}
 
-\begin{frame}{ripopt: Licensing}
+\begin{frame}{ripopt: AI slop? Why do we care?}
 
-  Author's impression:
+  Standard benchmarks results claims it "beats" Ipopt
+
+  \vfill
+
+  Many new ideas not seen in the original Ipopt paper:
+
+  \begin{itemize}
+    \item Mehrotra predictor-corrector with Gondzio centrality corrections\footcite{gondzio1996multiple}
+    \item TRON fast path for bound-constrained problems\footcite{lin1999newton}
+    \item Multi-solver fallback architecture: L-BFGS, Augmented Lagrangian, SQP, and explicit slack reformulation
+    \item Two-phase restoration: fast Gauss-Newton + full NLP restoration subproblem
+    \item Adaptive and monotone barrier parameter strategies with Mehrotra sigma-guided mu updates\footcite{doi:10.1137/060649513}
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}{ripopt: Things to have in mind (1/2)}
+
+  \textbf{Author's impression}:
 
   \emph{For small problems there are compelling reasons to be excited about ripopt. For larger problems, there is still a lot of work to do to make it competitive.}
-
-  \vfill
-
-  Interesting insights into thought process documented in the repo.
-
-  \vfill
-
-  It is not a "clean room" development.
 
   \vfill
 
@@ -723,7 +737,37 @@
 
   \emph{I have not read all the generated code (I don't even really know how to write Rust, but it is readable). It was generated faster than I could read or understand. }
 
+  \vfill
+
+  \textbf{This is pure agentic coding!} \\
+  Agents touch and run the code. He manages and sets the goals.
+
+  \vfill
+
+  \textbf{License? EPL}, same as Ipopt.\\
+  Author considers it a derivative work, takes no credit.
+
 \end{frame}
+
+\begin{frame}{ripopt: Things to have in mind (2/2)}
+
+  It is not a "clean room" development. The AI cites specific parts of the Ipopt C++ codebase.
+
+  \vfill
+  The AI maintains a \raisebox{1ex}{\underline{\smash{\raisebox{-1ex}{manuscript}}}} PDF describing the algorithm\footnote{\tiny \url{https://github.com/jkitchin/ripopt/blob/main/manuscript/ripopt.pdf}}
+
+  \vfill
+  The instructions/prompts are public: \texttt{CLAUDE.md}
+
+  \vfill
+  Reflections on development, licensing, concerns, "should you use this?"\footnote{\tiny \url{https://github.com/jkitchin/ripopt/blob/main/reflections.org}} (not AI!)
+
+  \vfill
+  A narration of the CHANGELOG\footnote{\tiny \url{https://github.com/jkitchin/ripopt/blob/main/narrative-history.org}}, maintained by the AI.
+
+\end{frame}
+
+\subsection{Benchmarks}
 
 \begin{frame}{ripopt: Benchmarks used}
 
@@ -743,7 +787,26 @@
 
 \end{frame}
 
-\subsection{Benchmarks}
+\begin{frame}{How do you even verify these bold claims?}
+
+  Reviewing the code? Not feasible\dots
+
+  \vfill
+
+  Looking at individual problems?
+
+  \begin{itemize}
+    \item Difficult to compare (Visualization of high dimensions? Running iteration by iteration?)
+    \item Codebase changes rapidly
+    \item Everybody comes up with their own "test problems" they care about
+  \end{itemize}
+
+  \vfill
+
+  Treat the system as a black box. Compare it with ipopt.\\
+  Focus on the big picture and take it from there.
+
+\end{frame}
 
 \begin{frame}{It's just replicating the results, right?}
 
