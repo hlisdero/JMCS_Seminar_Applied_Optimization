@@ -44,6 +44,14 @@
 \usepackage{booktabs}
 \usepackage{array}
 
+% BIBLATEX BECAUSE OF FOOTCITE %
+\usepackage[style=authoryear,backend=biber]{biblatex}
+\usepackage{csquotes} % To avoid warning: https://tex.stackexchange.com/questions/229638/package-biblatex-warning-babel-polyglossia-detected-but-csquotes-missing
+\addbibresource{./bibliography/Articles.bib}
+\addbibresource{./bibliography/Books.bib}
+\addbibresource{./bibliography/Repositories.bib}
+% Make sure to set VS Code extension to use biblatex as a backend: https://tex.stackexchange.com/questions/406205/no-citation-bibdata-or-bibstyle-command
+
 \title[Ipopt revisited in Rust]{Ipopt revisited in Rust}
 \author{Horacio Lisdero Scaffino}
 \date{May 21, 2026}
@@ -94,7 +102,7 @@
 \begin{frame}{Ipopt: The origins}
 
   \begin{itemize}
-    \item PhD thesis by Andreas Wächter in 2002 at Carnegie Mellon \cite{wachter2002interior}
+    \item PhD thesis by Andreas Wächter in 2002 at Carnegie Mellon \footcite{wachter2002interior}
     \item Since 2002 part of the COIN-OP foundation \cite{coinop_ipopt}
     \item Original implementation in Fortran 77 (1.x and 2.x), now deprecated
     \item Open source since the start
@@ -644,7 +652,7 @@
 
 \begin{frame}{Results: TODO}
 
-This is where the results of the implementation would go.
+  This is where the results of the implementation would go.
 
 \end{frame}
 
@@ -1109,12 +1117,7 @@ This is where the results of the implementation would go.
 
 \begin{frame}[allowframebreaks]{Bibliography}
   \tiny
-  \bibliographystyle{ieeetr}
-  \bibliography{
-    ./bibliography/Articles.bib,
-    ./bibliography/Books.bib,
-    ./bibliography/Repositories.bib,
-  }
+  \printbibliography
 \end{frame}
 
 \end{document}
