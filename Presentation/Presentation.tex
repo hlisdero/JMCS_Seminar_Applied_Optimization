@@ -52,7 +52,7 @@
 \addbibresource{./bibliography/Repositories.bib}
 % Make sure to set VS Code extension to use biblatex as a backend: https://tex.stackexchange.com/questions/406205/no-citation-bibdata-or-bibstyle-command
 
-\title[Ipopt revisited in Rust]{Ipopt revisited in Rust}
+\title[Ipopt and Rust: Survey of the ecosystem]{Ipopt and Rust: Survey of the ecosystem}
 \author{Horacio Lisdero Scaffino}
 \date{May 21, 2026}
 
@@ -73,7 +73,7 @@
   \tableofcontents
 \end{frame}
 
-\section{A tour of Ipopt}
+\section{A brief tour of Ipopt}
 
 \begin{frame}{Ipopt: Interior Point OPTimizer}
 
@@ -131,7 +131,7 @@
 
   \begin{itemize}
     \item IBM Research decided to invest in an open source re-write of Ipopt in C++
-    \item With the help of Carl Laird, the code was re-implemented from scratch \footnote{\href{https://coin-or.github.io/Ipopt/\#HISTORY\_IPOPT}{History of Ipopt} }
+    \item With the help of Carl Laird, the code was re-implemented from scratch\footnote{\href{https://coin-or.github.io/Ipopt/\#HISTORY\_IPOPT}{History of Ipopt} }
     \item 3.x published in Aug 2005
     \item It is still actively developed on GitHub
   \end{itemize}
@@ -150,6 +150,8 @@
     \item Second-order correction steps to reduce Maratos-type effects
     \item Practical heuristics for robustness and faster performance
   \end{itemize}
+
+  We will quickly go over the main points for time reasons
 
 \end{frame}
 
@@ -334,7 +336,85 @@
 
 \end{frame}
 
-\section{An attempt of a simple IPM algorithm}
+
+\section{Why Rust?}
+
+\begin{frame}{What is Rust?}
+  Rust is a multi-paradigm, general-purpose programming language that
+  aims to provide developers with a safe and efficient way to write low-level code.
+
+  \vfill
+
+  \begin{itemize}
+    \item Memory-safe
+    \item Compiled to machine code, no runtime needed
+    \item High-level simplicity
+    \item Low-level performance (on the same level as C or C++)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Brief timeline of Rust}
+  \footnotesize
+  \setlength\labelsep{0.3em}
+  \begin{list}{}{%
+      \setlength\labelwidth{2em}%
+      \setlength\leftmargin\labelwidth%
+      \setlength\itemsep{0.5ex}%
+    }
+    \item [2007] Started as a side project by Graydon Hoare, a programmer at Mozilla
+    \item [2009] Mozilla officially started sponsoring the project
+    \item [2015] First stable version 1.0
+    \item [2016] Mozilla releases Servo, a browser engine built with Rust
+    \item [2019] \Rustinline{async}/\Rustinline{await} support stabilized
+    \item [2021] The Rust Foundation is founded by AWS, Huawei, Google, Microsoft, and Mozilla
+    \item [2021] The Android Open Source Project encourages the use of Rust for the SO components below the ART
+    \item [2022] The Linux kernel adds experimental support for Rust alongside C
+    \item [2023] Microsoft starts introducing Rust into parts of Windows kernel
+    \item [2025] 10 years in a row the most loved programming language in the Stack Overflow Developer Survey
+    \item [2026] Linux 7.0 released with official Rust support
+  \end{list}
+\end{frame}
+
+\begin{frame}{Memory safety}
+  It achieves memory safety without using a garbage collector or reference counting.
+  Instead, it uses the concept of \textbf{ownership} and \textbf{borrowing}.
+
+  \vfill
+
+  It prevents a wide variety of error classes at compile-time:
+
+  \begin{itemize}
+    \item Double free
+    \item Use after free
+    \item Dangling pointers
+    \item Data races
+    \item Passing non-thread-safe variables
+  \end{itemize}
+
+  \vfill
+
+  If a violation of the compiler rules is found, the program will simply not compile.
+\end{frame}
+
+\begin{frame}{Where to use Rust?}
+
+  \centering
+  { \Large TL;DR: to replace C / C++ }
+
+  \vfill
+
+  \flushleft
+  Like in optimization software where:
+
+  \begin{itemize}
+    \item Execution speed directly affects usability
+    \item Memory footprint must stay tight and predictable
+    \item Low-level bugs are costly to diagnose and fix
+  \end{itemize}
+
+\end{frame}
+
+\section{An attempt at a simple IPM algorithm}
 
 \begin{frame}{Introduction}
 
@@ -394,7 +474,7 @@
 
   \vfill
 
-  \tiny Website \footnote{\url{https://argmin-rs.org/}}
+  \tiny Website\footnote{\url{https://argmin-rs.org/}}
   \centering
   \includegraphics[width=\textwidth]{argmin-features.png}
 
@@ -422,8 +502,8 @@
   \vfill
 
   \begin{itemize}
-    \item \texttt{nalgebra} \footnote{\url{https://nalgebra.rs/}}
-    \item \texttt{faer} \footnote{\url{https://faer.veganb.tw/}}
+    \item \texttt{nalgebra}\footnote{\url{https://nalgebra.rs/}}
+    \item \texttt{faer}\footnote{\url{https://faer.veganb.tw/}}
   \end{itemize}
 
   \vfill
@@ -662,7 +742,7 @@
 
 \begin{frame}{ripopt: A Rust re-write from February 2026}
 
-  Coded in $\sim$60/70 hs during the course of 6 weeks heavily relying on Claude Code \footnote{\url{https://github.com/jkitchin/ripopt}}.
+  Coded in $\sim$60/70 hs during the course of 6 weeks heavily relying on Claude Code\footnote{\url{https://github.com/jkitchin/ripopt}}.
 
   \vfill
 
@@ -677,8 +757,8 @@
   Linear algebra solver?
 
   \begin{itemize}
-    \item First relied on a reimplementation of MUMPS \footnote{\url{https://mumps-solver.org/}}
-    \item Since April 26, it relies on a separate AI-coded solver by the same author \footnote{\url{https://github.com/jkitchin/feral}}
+    \item First relied on a reimplementation of MUMPS\footnote{\url{https://mumps-solver.org/}}
+    \item Since April 26, it relies on a separate AI-coded solver by the same author\footnote{\url{https://github.com/jkitchin/feral}}
   \end{itemize}
 
 \end{frame}
@@ -841,7 +921,7 @@
 
   \begin{columns}[T,onlytextwidth]
     \begin{column}{0.49\textwidth}
-      \textbf{Electrolyte suite (12 problems) \footnote{\tiny 12 instead of 13, unclear why}}
+      \textbf{Electrolyte suite (12 problems)\footnote{\tiny 12 instead of 13, unclear why}}
 
       \vspace{0.4em}
       \centering
