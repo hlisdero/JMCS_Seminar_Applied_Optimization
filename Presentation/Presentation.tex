@@ -52,7 +52,7 @@
 \addbibresource{./bibliography/Repositories.bib}
 % Make sure to set VS Code extension to use biblatex as a backend: https://tex.stackexchange.com/questions/406205/no-citation-bibdata-or-bibstyle-command
 
-\title[Ipopt and Rust: Survey of the ecosystem]{Ipopt and Rust: Survey of the ecosystem}
+\title[Ipopt and Rust: An exploration of the ecosystem]{Ipopt and Rust: An exploration of the ecosystem}
 \author{Horacio Lisdero Scaffino}
 \date{May 21, 2026}
 
@@ -120,7 +120,7 @@
           \begin{itemize}
             \item Feasibility restoration phase,
             \item Inertia correction,
-            \item Various heuristics...
+            \item Various heuristics\dots
           \end{itemize}
     \item More benchmarks: CUTEr test set \footcite{gould2003cuter}
   \end{itemize}
@@ -414,29 +414,68 @@
 
 \end{frame}
 
-\section{An attempt at a simple IPM algorithm}
+\section{Survey of the Rust ecosystem for optimization}
 
-\begin{frame}{Introduction}
+\begin{frame}{What are we looking for?}
 
-  I wanted to play around with code and not just present equations
+  We will look at different levels of integration on a broad spectrum:
+
+  \begin{enumerate}
+    \item Rust bindings to Ipopt
+    \item an optimization package 100\% in Rust \emph{without} IPM
+    \item an Ipopt-derived implementation in Rust
+  \end{enumerate}
+
+\end{frame}
+
+\subsection{ipopt-rs}
+
+\begin{frame}{ipopt-rs}
+
+  \texttt{ipopt-rs} \footnote{\url{https://github.com/elrnv/ipopt-rs}} offers a safe Rust interface to Ipopt.
+
+  \vfill
+
+  You must install Ipopt on your system first. The accompanying repo contains 3 executable examples.
+
+  \vfill
+
+  While it is technically possible to call C/C++ foreign functions from Rust,
+  it is advisable to avoid it to:
+
+  \begin{itemize}
+    \item reduce boilerplate and error checking
+    \item keep the \texttt{unsafe} code outside of your own code
+  \end{itemize}
+
+\end{frame}
+
+\subsection{argmin}
+
+\begin{frame}{An attempt at a simple IPM algorithm}
+
+  I searched for mature Rust packages that implement an interior point method\dots
+
+  \vfill
+  \pause
 
   \begin{flushright}
-    \scriptsize and thus produce some nice visualizations :)
+    \scriptsize I could not find any, not even for constrained optimization with other algorithms :(
   \end{flushright}
 
   \vfill
   \pause
 
-  I wanted to see if optimization in pure Rust is possible
+  But I wanted to see if optimization in pure Rust is possible
 
   \begin{flushright}
-    \scriptsize memory safety, performance, modern language for low-level applications, ...
+    \scriptsize memory safety, performance, modern language for low-level applications, \dots
   \end{flushright}
 
   \vfill
   \pause
 
-  I wanted to contribute something back to the community,
+  And I wanted to contribute something back to the community,
 
   \begin{flushright}
     \scriptsize i.e, \textbf{not} throw away the Python code 1 week after the seminar
@@ -468,18 +507,20 @@
 
 \begin{frame}{argmin}
 
-
   \centering
   \includegraphics[width=\textwidth]{argmin-crate.png}
 
   \vfill
 
+  \raggedright
   \tiny Website\footnote{\url{https://argmin-rs.org/}}
+
   \centering
   \includegraphics[width=\textwidth]{argmin-features.png}
 
   \vfill
 
+  \raggedright
   \tiny discarded several libraries: dealt only with LP (\texttt{good\_lp}), used novel algorithms (\texttt{clarabel}), or were too small (\texttt{interiors})
 
 \end{frame}
@@ -491,7 +532,7 @@
 
 \end{frame}
 
-\begin{frame}{Math backends}
+\begin{frame}{argmin: Math backends}
 
   The math backend is implemented in a separate crate \texttt{argmin-math}
 
@@ -559,11 +600,9 @@
 
 \end{frame}
 
+\begin{frame}[fragile]{Example extension: Add a linear solver}
 
-\subsection{Challenges encountered}
-
-\begin{frame}[fragile]{Add a linear solver}
-
+  \scriptsize
   Add a trait:
 
   \begin{listing}
@@ -598,141 +637,42 @@
     \end{minted}
   \end{listing}
 
-\end{frame}
 
-\begin{frame}[fragile]{No constraints?}
+  This is just scratching the surface of the complexity.
 
-  \begin{listing}
-    \begin{minted}[fontsize=\tiny, frame=none]{Rust}
-        /// Defines equality constraints for a problem.
-        ///
-        /// It follows the form h(x) = (0, ... , 0), where h is a vector field.
-        pub trait EqualityConstraint {
-            /// Type of the parameter vector
-            type Param;
-            /// Type of the return value of the equality constraints
-            type Output;
+  There are lots of new things to keep track of!
 
-            /// Compute all equality constraints
-            fn equality_constraint(&self, param: &Self::Param) -> Result<Self::Output, Error>;
-        }
-    \end{minted}
-  \end{listing}
-
-  \tiny
-  And their derivatives \dots
-
-  \begin{listing}
-    \begin{minted}[fontsize=\tiny, frame=none]{Rust}
-        /// Defines the Jacobian of the vector field representing the equality constraints for a problem.
-        pub trait EqualityConstraintJacobian {
-            /// Type of the parameter vector
-            type Param;
-            /// Type of the Jacobian
-            type Jacobian;
-
-            /// Compute the Jacobian of the equality constraints
-            fn equality_constraint_jacobian(&self, param: &Self::Param) -> Result<Self::Jacobian, Error>;
-
-            bulk!(equality_constraint_jacobian, Self::Param, Self::Jacobian);
-        }
-    \end{minted}
-  \end{listing}
+  And the new \texttt{NonLinearProgramState} is generic over 11 types!
 
 \end{frame}
 
-\begin{frame}[fragile]{And the Hessian of the Lagrangian \dots}
+\begin{frame}{argmin: Results}
 
-  \tiny
-  The existing \texttt{Hessian} is not enough. We need Lagrange multipliers as well \dots
-
-  \begin{listing}
-    \begin{minted}[fontsize=\tiny, frame=none]{Rust}
-        pub trait LagrangianHessian {
-            /// Type of the parameter vector
-            type Param;
-            /// Type of the multipliers associated with equality constraints
-            type MultipliersEq;
-            /// Type of the multipliers associated with inequality constraints
-            type MultipliersIneq;
-            /// Type of the Hessian
-            type Hessian;
-
-            /// Compute the Hessian of the Lagrangian
-            fn lagrangian_hessian(
-                &self,
-                param: &Self::Param,
-                multipliers_eq: &Self::MultipliersEq,
-                multipliers_ineq: &Self::MultipliersIneq,
-            ) -> Result<Self::Hessian, Error>;
-
-            bulk!(
-                lagrangian_hessian,
-                Self::Param,
-                Self::MultipliersEq,
-                Self::MultipliersIneq,
-                Self::Hessian
-            );
-        }
-    \end{minted}
-  \end{listing}
-
-\end{frame}
-
-\begin{frame}{And iteration state for NLP \dots}
-
-  \scriptsize
-  Lots of new things to keep track of!
-
-  \vfill
+  File structure:
 
   \begin{itemize}
-    \item \texttt{slacks}
-    \item \texttt{best\_slacks}
-    \item \texttt{lagrangian\_hessian}
-    \item \texttt{equality\_constraints}
-    \item \texttt{inequality\_constraints}
-    \item \texttt{equality\_constraint\_jacobian}
-    \item \texttt{inequality\_constraint\_jacobian}
-    \item \texttt{mu}
-    \item \texttt{lambda\_eq}
-    \item \texttt{lambda\_ineq}
-    \item \texttt{alpha\_primal}
-    \item \texttt{alpha\_dual}
-    \item \texttt{inf\_pr}
-    \item \texttt{inf\_du}
-    \item \texttt{compl\_inf}
+    \item \texttt{nalgebra\_backend.rs}: All the linear-algebra-specific logic for nalgebra, the only supported backend
+    \item \texttt{linesearch.rs}: The custom backtracking linear search. The existing implementation could not be reused
+    \item \texttt{iteration.rs}: A single iteration of the interior-point method
+    \item \texttt{interiorpointmethod.rs}: The solver. The high-level management of the IPM algorithm.
   \end{itemize}
 
   \vfill
+  The forked repo on GitHub follows this structure\footnote{\url{https://github.com/hlisdero/argmin}}
 
-  The resulting \texttt{NonLinearProgramState} is generic over 11 types!
+  \vfill
+  The implementation is still incomplete after $\sim$30 hours of work\dots
 
 \end{frame}
 
-\begin{frame}{Finally! IPM}
+\begin{frame}{Advice on argmin}
 
-  \texttt{nalgebra\_backend.rs}: All the linear-algebra-specific logic for nalgebra, the only supported backend
-
-  \vfill
-
-  \texttt{linesearch.rs}: The custom backtracking linear search. The existing implementation could not be reused
-
-  \vfill
-
-  \texttt{iteration.rs}: A single iteration of the interior-point method
-
-  \vfill
-
-  \texttt{interiorpointmethod.rs}: The solver. The high-level management of the IPM algorithm.
-
-\end{frame}
-
-\subsection{Results}
-
-\begin{frame}{Results: TODO}
-
-  This is where the results of the implementation would go.
+  \begin{enumerate}
+    \item It focuses on \emph{unconstrained} optimization
+    \item Only the most basic algorithms and it is not optimized
+    \item Well-structured and very generic (maybe too much?)
+    \item Math libraries pose a limitation for further development as well
+  \end{enumerate}
 
 \end{frame}
 
@@ -799,7 +739,7 @@
     \item Water distribution network problems (6 problems)
   \end{itemize}
 
-  We will see how much of this holds up to scrutiny....
+  We will see how much of this holds up to scrutiny\dots
 
 \end{frame}
 
@@ -825,7 +765,7 @@
     \item testing the automated CUTEst installation flow from scratch,
     \item finding a collision in the name of two Fortran functions,
     \item testing every Makefile target,
-    \item spotting the missing Hoch-Schittkowski test suite (removed)...
+    \item spotting the missing Hoch-Schittkowski test suite (removed)\dots
   \end{itemize}
 
 \end{frame}
