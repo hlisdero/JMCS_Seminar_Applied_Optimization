@@ -204,7 +204,7 @@
   \begin{itemize}
     \item Fix a starting point $(x_k, \lambda_k, z_k)$,
     \item Calculate the deltas for each dimension $(d_k^x, d_k^\lambda, d_k^z)$
-    \item Use the deltas to move to $(x_{k+1}, \lambda_{k+1}, z_{k+1})$ (more later)
+    \item Use the deltas to move to $(x_{k+1}, \lambda_{k+1}, z_{k+1})$ (*)
   \end{itemize}
 
   \[
@@ -293,7 +293,7 @@
     \mathcal{L}(x,\lambda,z) & := f(x) + c(x)^T\lambda - z.
   \end{align*}
 
-  But this system can be further simplified!
+  But this system can be made symmetric!
 
   Multiply out the third equation:
 
@@ -366,10 +366,28 @@
   \end{equation*}
 
   \begin{itemize}
-    \item Symmetric system
     \item Matrix in top-left block projected onto the null space of the constraint Jacobian $A_k^T$ is positive definite
     \item If $A_k$ does not have full rank, the iteration matrix is singular and a solution may not exist
   \end{itemize}
+
+  \pause
+  \vfill
+
+  We require $c(x_k) = 0$, $\nabla c(x_k) $ is the set of directions that span the \emph{normal space} to the constraint manifold
+
+  The directions \emph{orthogonal} to $\nabla c(x_k)$ represent the directions that do not change the value of the constraints (i.e., we stay feasible)
+
+  \pause
+  So we care about the directions $d$ such that $A_k d = 0$. We denote $B \in \mathbb{R}^{m\,\times\,n}$ such that $A_k B = 0$
+
+  \[
+    B^\top (W_k + \Sigma_k) B \succ 0
+  \]
+
+\end{frame}
+
+\begin{frame}{KKT system: Inertia correction}
+  \vspace{-2.0em}
 
   Solve instead the following system with \textbf{inertia correction} for some $\delta_w, \delta_c \ge 0$:
 
@@ -390,8 +408,16 @@
     \end{bmatrix}
   \end{equation*}
 
-\end{frame}
+  \vfill
+  \pause
 
+  \begin{itemize}
+    \item Choose $\delta_w, \delta_c$ so that the KKT matrix has inertia $(n, m, 0)$ (no zero eigenvalues)
+    \item This guarantees: full-rank effective constraints and $B^\top (W_k + \Sigma_k) B \succ 0$ on feasible directions
+    \item Intuition: we slightly ``stiffen'' the Hessian and regularize the constraints so that the step is well-defined and remains a descent step
+  \end{itemize}
+
+\end{frame}
 
 \section{Why Rust?}
 
@@ -1118,7 +1144,7 @@
   \begin{itemize}
     \item ripopt: \textbf{9/10 solved} in 9.4s total
     \item Ipopt: \textbf{9/10 solved} in 8.3s total
-    \item Speedups (time iopt/time ripopt): \\ 2.2x, 0.8x, 0.7x, 0.3x, 1.3x, 0.2x, 0.6x, 0.2x, 0.1x, 0.5x
+    \item Speedups (time Ipopt/time ripopt): \\ 2.2x, 0.8x, 0.7x, 0.3x, 1.3x, 0.2x, 0.6x, 0.2x, 0.1x, 0.5x
   \end{itemize}
 
   \vfill
