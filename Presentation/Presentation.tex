@@ -146,8 +146,8 @@
 
   \begin{itemize}
     \item \fbox{Primal-dual interior-point method} with filter line-search globalization
-    \item \fbox{Sparse symmetric KKT solves} with inertia monitoring/correction
-    \item Inertia correction and regularization to obtain the proper search direction
+    \item \fbox{Sparse symmetric KKT solver} with inertia monitoring/correction
+    \item \fbox{Inertia correction} and regularization to obtain the proper search direction
     \item Feasibility restoration phase for difficult or infeasible iterates
     \item Second-order correction steps to reduce Maratos-type effects
     \item Practical heuristics for robustness and faster performance
@@ -186,7 +186,6 @@
 
 
 \begin{frame}{KKT system: Derivation (1/2)}
-  \vspace{-2.0em}
 
   \[
     F_\mu(x,\lambda,z) =
@@ -204,7 +203,7 @@
   \begin{itemize}
     \item Fix a starting point $(x_k, \lambda_k, z_k)$,
     \item Calculate the deltas for each dimension $(d_k^x, d_k^\lambda, d_k^z)$
-    \item Use the deltas to move to $(x_{k+1}, \lambda_{k+1}, z_{k+1})$ (*)
+    \item Use the deltas to move to $(x_{k+1}, \lambda_{k+1}, z_{k+1})$\footnote{\tiny Backtracking line search not explained due to time constraints}
   \end{itemize}
 
   \[
@@ -267,7 +266,6 @@
 \end{frame}
 
 \begin{frame}{KKT system: Matrix form}
-  \vspace{-1.0em}
 
   \begin{align*}
     \begin{bmatrix}
@@ -346,7 +344,6 @@
 \end{frame}
 
 \begin{frame}{KKT system: Important considerations}
-  \vspace{-2.0em}
 
   \begin{equation*}
     \begin{bmatrix}
@@ -387,7 +384,6 @@
 \end{frame}
 
 \begin{frame}{KKT system: Inertia correction}
-  \vspace{-2.0em}
 
   Solve instead the following system with \textbf{inertia correction} for some $\delta_w, \delta_c \ge 0$:
 
@@ -413,8 +409,10 @@
 
   \begin{itemize}
     \item Choose $\delta_w, \delta_c$ so that the KKT matrix has inertia $(n, m, 0)$ (no zero eigenvalues)
-    \item This guarantees: full-rank effective constraints and $B^\top (W_k + \Sigma_k) B \succ 0$ on feasible directions
-    \item Intuition: we slightly ``stiffen'' the Hessian and regularize the constraints so that the step is well-defined and remains a descent step
+    \item A large value of $\delta_w$ works but that makes the matrix ill-conditioned
+    \item Shortcut: Store the last correction used $\delta_w^{last}$ (minimum necessary perturbation is of the same order of magnitude)
+    \item Nonzero value for $\delta_c$ is always chosen if the unmodified iteration matrix has a zero eigenvalue
+    \item If $\delta_w > \delta_w^{max}$, then switch to the feasibility restoration phase
   \end{itemize}
 
 \end{frame}
