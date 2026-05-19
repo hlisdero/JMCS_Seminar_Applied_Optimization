@@ -1127,4 +1127,170 @@
   \printbibliography
 \end{frame}
 
+\begin{frame}
+  \centering
+  {\Huge Appendix}
+
+  \vfill
+  \raggedright
+  \begin{itemize}
+    \item More slides on what needs to be added to argmin
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{No constraints?}
+
+  \begin{listing}
+    \begin{minted}[fontsize=\tiny, frame=none]{Rust}
+        /// Defines equality constraints for a problem.
+        ///
+        /// It follows the form h(x) = (0, ... , 0), where h is a vector field.
+        pub trait EqualityConstraint {
+            /// Type of the parameter vector
+            type Param;
+            /// Type of the return value of the equality constraints
+            type Output;
+
+            /// Compute all equality constraints
+            fn equality_constraint(&self, param: &Self::Param) -> Result<Self::Output, Error>;
+        }
+    \end{minted}
+  \end{listing}
+
+  \tiny
+  And their derivatives \dots
+
+  \begin{listing}
+    \begin{minted}[fontsize=\tiny, frame=none]{Rust}
+        /// Defines the Jacobian of the vector field representing the equality constraints for a problem.
+        pub trait EqualityConstraintJacobian {
+            /// Type of the parameter vector
+            type Param;
+            /// Type of the Jacobian
+            type Jacobian;
+
+            /// Compute the Jacobian of the equality constraints
+            fn equality_constraint_jacobian(&self, param: &Self::Param) -> Result<Self::Jacobian, Error>;
+
+            bulk!(equality_constraint_jacobian, Self::Param, Self::Jacobian);
+        }
+    \end{minted}
+  \end{listing}
+
+\end{frame}
+
+\begin{frame}[fragile]{And the Hessian of the Lagrangian \dots}
+
+  \tiny
+  The existing \texttt{Hessian} is not enough. We need Lagrange multipliers as well \dots
+
+  \begin{listing}
+    \begin{minted}[fontsize=\tiny, frame=none]{Rust}
+        pub trait LagrangianHessian {
+            /// Type of the parameter vector
+            type Param;
+            /// Type of the multipliers associated with equality constraints
+            type MultipliersEq;
+            /// Type of the multipliers associated with inequality constraints
+            type MultipliersIneq;
+            /// Type of the Hessian
+            type Hessian;
+
+            /// Compute the Hessian of the Lagrangian
+            fn lagrangian_hessian(
+                &self,
+                param: &Self::Param,
+                multipliers_eq: &Self::MultipliersEq,
+                multipliers_ineq: &Self::MultipliersIneq,
+            ) -> Result<Self::Hessian, Error>;
+
+            bulk!(
+                lagrangian_hessian,
+                Self::Param,
+                Self::MultipliersEq,
+                Self::MultipliersIneq,
+                Self::Hessian
+            );
+        }
+    \end{minted}
+  \end{listing}
+
+\end{frame}
+
+\begin{frame}{And iteration state for NLP \dots}
+
+  \scriptsize
+  Lots of new things to keep track of!
+
+  \vfill
+
+  \begin{itemize}
+    \item \texttt{slacks}
+    \item \texttt{best\_slacks}
+    \item \texttt{lagrangian\_hessian}
+    \item \texttt{equality\_constraints}
+    \item \texttt{inequality\_constraints}
+    \item \texttt{equality\_constraint\_jacobian}
+    \item \texttt{inequality\_constraint\_jacobian}
+    \item \texttt{mu}
+    \item \texttt{lambda\_eq}
+    \item \texttt{lambda\_ineq}
+    \item \texttt{alpha\_primal}
+    \item \texttt{alpha\_dual}
+    \item \texttt{inf\_pr}
+    \item \texttt{inf\_du}
+    \item \texttt{compl\_inf}
+  \end{itemize}
+
+  \vfill
+
+  The resulting \texttt{NonLinearProgramState} is generic over 11 types!
+
+\end{frame}
+
+\begin{frame}[fragile]{NonLinearProgramState}
+
+  \begin{listing}
+    \begin{minted}[fontsize=\tiny, frame=none]{Rust}
+        pub struct NonLinearProgramState<
+            P,
+            G,
+            LH,
+            F,
+            EqC = (),
+            IneqC = (),
+            S = (),
+            EqCJ = (),
+            IneqCJ = (),
+            LambdaEq = (),
+            LambdaIneq = (),
+        > {
+          /// Current parameter vector
+          pub param: Option<P>,
+          /// Previous parameter vector
+          pub prev_param: Option<P>,
+          /// Current slack variables
+          pub slacks: Option<S>,
+          /// Previous slack variables
+          pub prev_slacks: Option<S>,
+          /// Current best parameter vector
+          pub best_param: Option<P>,
+          /// Previous best parameter vector
+          pub prev_best_param: Option<P>,
+          /// Current best slack variables
+          pub best_slacks: Option<S>,
+          /// Previous best slack variables
+          pub prev_best_slacks: Option<S>,
+          /// Current cost function value
+          pub cost: F,
+          /// Previous cost function value
+          pub prev_cost: F,
+          /// Current best cost function value
+          pub best_cost: F,
+          ....
+    \end{minted}
+  \end{listing}
+
+\end{frame}
+
 \end{document}
