@@ -166,6 +166,8 @@
     \quad                          & x \ge 0
   \end{align}
 
+  \pause
+
   We recover the Karush-Kuhn-Tucker (KKT) conditions for $\mu = 0$:
 
   \vspace{-1.0em}
@@ -183,7 +185,7 @@
 \end{frame}
 
 
-\begin{frame}{KKT system: Derivation}
+\begin{frame}{KKT system: Derivation (1/2)}
   \vspace{-2.0em}
 
   \[
@@ -194,6 +196,8 @@
       XZe - \mu e
     \end{bmatrix} = 0
   \]
+
+  \pause
 
   Iteratively solve using Netwon's method:
 
@@ -207,12 +211,58 @@
     F_{\mu_j}(x_k,\lambda_k,z_k) + \nabla F_{\mu_j}(x_k,\lambda_k,z_k) (d_k^x, d_k^\lambda, d_k^z)^T = 0
   \]
 
+  \pause
+  \vfill
 
   The term $\nabla F_\mu(x,\lambda,z)$ is a 3x3 matrix.
 
   It is the Jacobian of the vector field.
 
   We can move $F_\mu(x,\lambda,z)$ to the other side to get the form $A x = b$.
+
+\end{frame}
+
+\begin{frame}{KKT system: Derivation (2/2)}
+
+  \[
+    F_\mu(x,\lambda,z) =
+    \begin{bmatrix}
+      \nabla f(x) + \nabla c(x)\lambda - z \\
+      c(x)                                 \\
+      XZe - \mu e
+    \end{bmatrix} = 0
+  \]
+
+  \[
+    F_{\mu_j}(x_k,\lambda_k,z_k) + \nabla F_{\mu_j}(x_k,\lambda_k,z_k) (d_k^x, d_k^\lambda, d_k^z)^T = 0
+  \]
+
+  \vspace{-1.0em}
+
+  \begin{align*}
+    \begin{bmatrix}
+      W_k   & A_k & -I  \\
+      A_k^T & 0   & 0   \\
+      Z_k   & 0   & X_k
+    \end{bmatrix}
+    \begin{bmatrix}
+      d_k^x       \\
+      d_k^\lambda \\
+      d_k^z
+    \end{bmatrix}
+                             & =
+    -
+    \begin{bmatrix}
+      \nabla f(x_k) + A_k \lambda_k - z_k \\
+      c(x_k)                              \\
+      X_k Z_k e - \mu_j e
+    \end{bmatrix}                                        \\[0.8em]
+    \text{where}\qquad
+    A_k                      & := \nabla c(x_k),                               \\
+    W_k                      & := \nabla^2_{xx}\mathcal{L}(x_k,\lambda_k,z_k), \\
+    \mathcal{L}(x,\lambda,z) & := f(x) + c(x)^T\lambda - z.
+  \end{align*}
+
 
 \end{frame}
 
@@ -257,12 +307,12 @@
 \end{frame}
 
 \begin{frame}{KKT system: Symmetric matrix form}
-  \vspace{-2.0em}
 
   Now $d_k^z$ only appears in the first equation as $-I d_k^z = - d_k^z$ which we move to the other side:
 
-  \vspace{-1.0em}
+  \vspace{-2.0em}
   \begin{align*}
+    W_k d_k^x + A_k d_k^\lambda - I d_k^z    & = - (\nabla f(x_k) + A_k \lambda_k - z_k)              \\
     W_k d_k^x + A_k d_k^\lambda              & = - (\nabla f(x_k) + A_k \lambda_k - z_k) + d_k^z      \\
     W_k d_k^x + A_k d_k^\lambda              & = - (\nabla f(x_k) + A_k \lambda_k - z_k) +            \\
                                              & \qquad + \mu_j X_k^{-1} e - z_k - \Sigma_k d_k^x       \\
@@ -270,6 +320,10 @@
     (W_k + \Sigma_k) d_k^x + A_k d_k^\lambda & = - (\nabla \varphi_{\mu_j}(x_k) + A_k \lambda_k)
   \end{align*}
 
+  \centering
+  {\tiny Remember: $\varphi_\mu(x) := f(x) - \mu \sum_{i=1}^n \ln\!\bigl(x^{(i)}\bigr)$}
+  \vfill
+  \raggedright
   Reconstructing the system, we get:
 
   \begin{equation}
@@ -346,6 +400,7 @@
   aims to provide developers with a safe and efficient way to write low-level code.
 
   \vfill
+  \pause
 
   \begin{itemize}
     \item Memory-safe
@@ -434,7 +489,7 @@
 
 \begin{frame}{ipopt-rs}
 
-  \texttt{ipopt-rs} \footnote{\tiny \url{https://github.com/elrnv/ipopt-rs}} offers a safe Rust interface to Ipopt.
+  \texttt{ipopt-rs}\footnote{\tiny \url{https://github.com/elrnv/ipopt-rs}} offers a safe Rust interface to Ipopt.
 
   \vfill
 
@@ -509,21 +564,34 @@
 
 \begin{frame}{argmin}
 
+  I went on \texttt{crates.io}, the Rust package registry, and looked for:
+
+  \begin{itemize}
+    \item Optimization packages
+    \item Specific algorithm names
+    \item Linear algebra libraries
+  \end{itemize}
+
+  \vfill
+
+  The most popular optimization package by a wide margin:
+
   \centering
   \includegraphics[width=\textwidth]{argmin-crate.png}
 
   \vfill
 
   \raggedright
-  \tiny Website\footnote{\tiny \url{https://argmin-rs.org/}}
+  \tiny discarded several libraries: dealt only with LP (\texttt{good\_lp}), used novel algorithms (\texttt{clarabel}), or were too small (\texttt{interiors})
+
+\end{frame}
+
+\begin{frame}{argmin: Features}
 
   \centering
   \includegraphics[width=\textwidth]{argmin-features.png}
 
-  \vfill
-
-  \raggedright
-  \tiny discarded several libraries: dealt only with LP (\texttt{good\_lp}), used novel algorithms (\texttt{clarabel}), or were too small (\texttt{interiors})
+  \footnote{\tiny Screenshot from the website \url{https://argmin-rs.org/}}
 
 \end{frame}
 
@@ -663,7 +731,8 @@
   The forked repo on GitHub follows this structure\footnote{\tiny \url{https://github.com/hlisdero/argmin}}
 
   \vfill
-  The implementation is still incomplete after $\sim$30 hours of work\dots
+  The implementation is still incomplete after $\sim$30 hours of work\dots \\
+  All the parts are present but I need to debug it and test it thoroughly. Maybe a summer project?
 
 \end{frame}
 
@@ -805,7 +874,7 @@
 
   \vfill
 
-  Treat the system as a black box. Compare it with ipopt.\\
+  Treat the system as a black box. Compare it with Ipopt.\\
   Focus on the big picture and take it from there.
 
 \end{frame}
@@ -826,7 +895,7 @@
     \item a few hallucinated links,
     \item understanding how to install CUTEst locally and compiling the Fortran code,
     \item pointing out missing scripts,
-    \item discovering a Linux-specific issue when linking the ipopt library,
+    \item discovering a Linux-specific issue when linking the Ipopt library,
     \item testing the automated CUTEst installation flow from scratch,
     \item finding a collision in the name of two Fortran functions,
     \item testing every Makefile target,
@@ -840,17 +909,18 @@
   \footnotesize
   \begin{tabular}{@{}lcc@{}}
     \toprule
-    Metric                                 & ripopt                    & Ipopt                     \\
+    Metric                              & ripopt                    & Ipopt                     \\
     \midrule
-    Optimal                                & \textbf{562/745} (75.4\%) & \textbf{574/745} (77.0\%) \\
-    Acceptable                             & 16                        & 3                         \\
-    Total solved (Optimal + Acceptable)    & 578 (77.6\%)              & 577 (77.4\%)              \\
-    Solved exclusively                     & 21                        & 20                        \\
-    Both solved                            & 557                       &                           \\
-    Matching objectives (\textless 0.01\%) & 537/557                   &                           \\
-    Acceptable at worse local min          & 4                         &                           \\
+    Optimal                             & \textbf{562/745} (75.4\%) & \textbf{574/745} (77.0\%) \\
+    Acceptable                          & 16                        & 3                         \\
+    Total solved (Optimal + Acceptable) & 578 (77.6\%)              & 577 (77.4\%)              \\
+    Solved exclusively                  & 21                        & 20                        \\
     \bottomrule
   \end{tabular}
+
+  \textbf{Both ripopt and Ipopt solved: 557 problems} \\
+  \textbf{Matching objectives (\textless 0.01\%): 537/557} \\
+  \textbf{Acceptable at worse local min: 4}
 
   \vfill
 
@@ -859,6 +929,44 @@
   \vfill
 
   \textbf{Acceptable?} This was inherited from Ipopt's own convergence framework: a solve is \emph{Optimal} if it meets tight tolerances, and \emph{Acceptable} if it meets relaxed tolerances.
+
+\end{frame}
+
+\begin{frame}{And in the repo?}
+
+  \footnotesize
+  My latest run (May 11th):
+  \vfill
+
+  \centering
+  \begin{tabular}{@{}lcc@{}}
+    \toprule
+    Metric                              & ripopt                    & Ipopt                     \\
+    \midrule
+    Optimal                             & \textbf{562/745} (75.4\%) & \textbf{574/745} (77.0\%) \\
+    Acceptable                          & 16                        & 3                         \\
+    Total solved (Optimal + Acceptable) & 578 (77.6\%)              & 577 (77.4\%)              \\
+    Solved exclusively                  & 21                        & 20                        \\
+    \bottomrule
+  \end{tabular}
+
+  \vfill
+  \raggedright
+  The repo (May 18th):
+  \vfill
+
+  \centering
+  \footnotesize
+  \begin{tabular}{@{}lcc@{}}
+    \toprule
+    Metric                              & ripopt                    & Ipopt                     \\
+    \midrule
+    Optimal                             & \textbf{568/745} (76.2\%) & \textbf{572/745} (76.8\%) \\
+    Acceptable                          & 20                        & 5                         \\
+    Total solved (Optimal + Acceptable) & 588 (78.9\%)              & 575 (77.2\%)              \\
+    Solved exclusively                  & 23                        & 27                        \\
+    \bottomrule
+  \end{tabular}
 
 \end{frame}
 
@@ -1021,7 +1129,7 @@
 
 \begin{frame}{How would you troubleshoot an issue?}
 
-  ipopt reports more than symply "Optimal" / "Not optimal". \\
+  Ipopt reports more than symply "Optimal" / "Not optimal". \\
   The return value (as we will see shortly) is the starting point.
 
   \vfill
@@ -1066,13 +1174,13 @@
 
 \end{frame}
 
-\begin{frame}{Advice on ipopt}
+\begin{frame}{Advice on ripopt}
 
   \begin{enumerate}
     \item Not ready for production
-    \item For small problems usable
+    \item For small problems usable, although codebase unstable
     \item For large problems still not competitive
-    \item If people start using it, it will become better
+    \item If people start using it, it may become better
   \end{enumerate}
 
 \end{frame}
